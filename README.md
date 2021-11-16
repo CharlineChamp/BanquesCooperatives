@@ -1,1 +1,1 @@
-# BanquesCoop-ratives
+# BanquesCooperatives
