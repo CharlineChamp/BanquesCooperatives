@@ -14,4 +14,4 @@ fd_cnew <- fd_c[-l,]
 
 #Affichage graphique
 par(mar = c(0,0,1,0))
-plot(fd_cnew[3], reset = FALSE)
+plot(fd_cnew[3],reset = FALSE)
