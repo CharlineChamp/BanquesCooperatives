@@ -4,6 +4,7 @@ library(sf)
 fd_c <- st_read('fond_ZE2020_geo20.shp')
 
 l <- c()
+
 #Indices des codes correspondants aux départements d'outre mer
 indices <- c('971','972','973','974','976')
 for(i in indices){
@@ -11,7 +12,27 @@ for(i in indices){
 }
 #On retire les départements d'outre mer
 fd_cnew <- fd_c[-l,]
+fd <- fd_cnew[3]
 
-#Affichage graphique
+#Affichage graphique des zones d'emplois
 par(mar = c(0,0,1,0))
-plot(fd_cnew[3],reset = FALSE)
+plot(fd,reset = FALSE)
+
+st_union_by = function(geo, group) {
+  # browser()
+  geo
+  group
+  y2 = list()
+  #loop over by groups and merge units
+  for (i in unique(group)) {
+    #which units
+    z = geo[group == i]
+    #merge
+    y = Reduce(st_union, z)
+    y2[[i]] = y
+  }
+  st_sfc(y2)
+}
+
+fd_geo <- st_union_by(fd$geometry, fd$ze2020)
+
