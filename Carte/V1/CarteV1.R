@@ -36,3 +36,5 @@ st_union_by = function(geo, group) {
 
 fd_geo <- st_union_by(fd$geometry, fd$ze2020)
 
+plot(fd_geo,col=c(1:287))
+
