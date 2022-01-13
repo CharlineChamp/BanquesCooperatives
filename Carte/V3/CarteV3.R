@@ -37,3 +37,26 @@ st_union_by = function(geo, group) {
 fd_geo <- st_union_by(fd$geometry, fd$ze2020)
 
 plot(fd_geo,col=c(1:287))
+
+#ggplot
+library(ggplot2)
+library(ggspatial)
+library(viridis)
+
+#Data frame comprenant les codes de ze et les geometry
+map_data <- data.frame(ze=as.numeric(unique(fd$ze2020)),fd_geo)
+
+#plot avec ggplot2
+map <- ggplot()+
+       geom_sf(data = map_data,aes(fill=ze,geometry=geometry),color='white',size=.2)+
+       scale_fill_viridis_c(option = 'G')+
+       theme_minimal()+
+       theme(legend.position = "none")+
+       theme(panel.background = element_rect(fill = "light blue"))+
+       #annotation_scale(location = "br", line_width = .3) +
+       annotation_north_arrow(location = "bl", height = unit(0.7, "cm"), width = unit(0.7, "cm"))
+map
+
+
+#plotly
+
