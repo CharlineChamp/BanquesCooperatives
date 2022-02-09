@@ -48,7 +48,7 @@ map_data <- data.frame(ze=as.numeric(unique(fd$ze2020)),fd_geo)
 
 #plot avec ggplot2
 map <- ggplot() +
-       geom_sf(data = map_data,aes(fill=ze,geometry=geometry),color='white',size=.2)+
+       geom_sf(data = map_data,aes(fill=,geometry=geometry),color='black',size=.2)+
        scale_fill_viridis_c(option = 'G')+
        theme_minimal()+
        theme(legend.position = "none")+
@@ -56,5 +56,24 @@ map <- ggplot() +
        #annotation_scale(location = "br", line_width = .3) +
        annotation_north_arrow(location = "bl", height = unit(0.7, "cm"), width = unit(0.7, "cm"))
 map
+######################################################################################################
+#TEST
 
 
+nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+fd_geo <- st_as_sf(fd_geo)
+
+plot_geo(nc)
+
+
+library(dplyr)
+test <- fd_cnew %>% 
+        group_by(ze2020) %>% 
+        summarize()
+
+
+plot(test)
+
+library(mapview)
+
+mapview(test)
