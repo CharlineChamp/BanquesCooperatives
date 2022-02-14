@@ -1,0 +1,68 @@
+Revenus et pauvreté des ménages en 2019	
+Zone d'emploi 2020 de Tours (2413)	
+© Insee	
+	
+	
+REV T1 - Ménages fiscaux de l'année 2019	
+	2019
+Nombre de ménages fiscaux	230101
+Nombre de personnes dans les ménages fiscaux	505162
+Médiane du revenu disponible par unité de consommation (en euros)	22200
+Part des ménages fiscaux imposés (en %)	57,5
+	
+Champ : ménages fiscaux - hors communautés et sans abris.	
+Source : Insee-DGFiP-Cnaf-Cnav-Ccmsa, Fichier localisé social et fiscal (FiLoSoFi) en géographie au 01/01/2021.	
+	
+	
+REV G1 - Taux de pauvreté par tranche d'âge du référent fiscal en 2019	
+	Taux en %
+Ensemble	12,5
+Moins de 30 ans	24
+De 30 à 39 ans	15
+De 40 à 49 ans	13,6
+De 50 à 59 ans	11,9
+De 60 à 74 ans	8,1
+75 ans ou plus	7,3
+	
+Champ : ménages fiscaux - hors communautés et sans abris.	
+Source : Insee-DGFiP-Cnaf-Cnav-Ccmsa, Fichier localisé social et fiscal (FiLoSoFi) en géographie au 01/01/2021.	
+	
+	
+REV G2 - Taux de pauvreté par statut d'occupation du logement du référent fiscal en 2019	
+	Taux en %
+Ensemble	12,5
+Propriétaire	5
+Locataire	27,1
+	
+Champ : ménages fiscaux - hors communautés et sans abris.	
+Source : Insee-DGFiP-Cnaf-Cnav-Ccmsa, Fichier localisé social et fiscal (FiLoSoFi) en géographie au 01/01/2021.	
+	
+	
+REV T2 - Décomposition des revenus disponibles sur l'année 2019	
+	part en %
+Ensemble	100
+Revenus d'activité	72,1
+dont salaires et traitements	64,7
+dont indemnités de chômage	2,8
+dont revenus des activités non salariées	4,6
+Pensions, retraites et rentes	30
+Revenus du patrimoine et autres revenus	8,8
+Ensemble des prestations sociales	5,8
+dont prestations familiales	2
+dont minima sociaux	2,5
+dont prestations logement	1,3
+Impôts	–16,7
+	
+Champ : ménages fiscaux - hors communautés et sans abris.	
+Source : Insee-DGFiP-Cnaf-Cnav-Ccmsa, Fichier localisé social et fiscal (FiLoSoFi) en géographie au 01/01/2021.	
+	
+	
+REV T3 - Distribution des revenus disponibles de l'année 2019	
+	2019
+Médiane du revenu disponible par unité de consommation (en euros)	22200
+Rapport interdécile (sans unité)	3,1
+1er décile (en euros)	12220
+9e décile (en euros)	37830
+	
+Champ : ménages fiscaux - hors communautés et sans abris.	
+Source : Insee-DGFiP-Cnaf-Cnav-Ccmsa, Fichier localisé social et fiscal (FiLoSoFi) en géographie au 01/01/2021.	

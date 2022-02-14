@@ -48,22 +48,20 @@ map_data <- data.frame(ze=as.numeric(unique(fd$ze2020)),fd_geo)
 
 #plot avec ggplot2
 map <- ggplot() +
-       geom_sf(data = map_data,aes(fill=,geometry=geometry),color='black',size=.2)+
-       scale_fill_viridis_c(option = 'G')+
+       geom_sf(data = test,aes(fill=ze2020,geometry=geometry),color='black',size=.2)+
+       scale_fill_viridis_d(option = 'G')+
        theme_minimal()+
        theme(legend.position = "none")+
        theme(panel.background = element_rect(fill = "light blue"))+
+       geom_point(data=sg,aes(x=Longitude,y=Latitude),color='red',size=.6)+
        #annotation_scale(location = "br", line_width = .3) +
        annotation_north_arrow(location = "bl", height = unit(0.7, "cm"), width = unit(0.7, "cm"))
 map
+
+ggplotly(map)
 ######################################################################################################
 #TEST
 
-
-nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
-fd_geo <- st_as_sf(fd_geo)
-
-plot_geo(nc)
 
 
 library(dplyr)
@@ -74,6 +72,28 @@ test <- fd_cnew %>%
 
 plot(test)
 
-library(mapview)
+test$geometry <- st_cast(test$geometry,"MULTIPOLYGON") #Plotly fonctionne seulement avec des MULTIPOLYGON
 
-mapview(test)
+sg <- read.csv("societe_generale_lgt_lat.csv")
+
+
+library(plotly)
+fig1 <- test %>% plot_mapbox() %>% layout(mapbox = list(style = 'dark'))
+fig2 <- sg %>% plot_mapbox(lat = ~Latitude, lon = ~Longitude, 
+                           size=1,
+                           mode = 'scattermapbox', hoverinfo='name') 
+fig2 <- fig2 %>% layout(title = 'Banques Coopératives',
+                        font = list(color='white'),
+                        plot_bgcolor = '#191A1A', paper_bgcolor = '#191A1A',
+                        mapbox = list(style = 'dark'),
+                        legend = list(orientation = 'h',
+                                      font = list(size = 8)),
+                                      margin = list(l = 25, r = 25,
+                                                    b = 25, t = 25,
+                                                    pad = 2)) 
+subplot(fig1,fig2)
+
+fig2
+
+
+
