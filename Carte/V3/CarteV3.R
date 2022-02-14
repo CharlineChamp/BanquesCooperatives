@@ -15,6 +15,7 @@ indices <- c('971','972','973','974','976')
 for(i in indices){
   l <- c(l,grep(i, fd_c$code, ignore.case = TRUE))
 }
+
 #On retire les départements d'outre mer
 fd_cnew <- fd_c[-l,]
 fd <- fd_cnew[3]
@@ -24,20 +25,19 @@ par(mar = c(0,0,1,0))
 plot(fd,reset = FALSE)
 
 #Fusion pour obtenir des zones d'emplois
-fd_cnew_plot <- fd_cnew %>% 
-                group_by(ze2020) %>% 
+fd_cnew_plot <- fd_cnew%>% 
+                group_by(ze2020)%>% 
                 summarize()
+
 plot(fd_cnew_plot)
 
 fd_cnew_plot$geometry <- st_cast(fd_cnew_plot$geometry,'MULTIPOLYGON')
 
 #ggplot
-#Data frame comprenant les codes de ze et les geometry
-map_data <- data.frame(ze=fd_cnew_plot$ze2020,fd_cnew_plot$geometry)
 
 #Construction de la map en ggplot
 map <- ggplot()+
-       geom_sf(data = map_data,aes(fill=ze,geometry=geometry),color='white',size=.2)+
+       geom_sf(data=fd_cnew_plot, aes(fill=ze2020,geometry=geometry),color='white',size=.2)+
        scale_fill_viridis_d(option = 'G')+
        theme_minimal()+
        theme(legend.position = "none")+
