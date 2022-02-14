@@ -74,4 +74,3 @@ fig2 <- fig2 %>% layout(title = 'Banques Coopératives',
 
 #Permet d'afficher les deux cartes cote a cote
 subplot(fig1,fig2)
-
