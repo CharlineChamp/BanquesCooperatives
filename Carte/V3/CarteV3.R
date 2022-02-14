@@ -7,9 +7,10 @@ library(viridis)
 
 #Chargement des données
 fd_c <- st_read('fond_ZE2020_geo20.shp')
+bdd_zese <- readxl::read_xlsx('bdd_social_ze2020.xlsx')
+sg <- read.csv("societe_generale_lgt_lat.csv")
 
 l <- vector(length = 0)
-
 #Indices des codes correspondants aux départements d'outre mer
 indices <- c('971','972','973','974','976')
 for(i in indices){
@@ -50,9 +51,6 @@ ggplotly(map)
 
 
 #PLOTLY
-#Test avec Société Générale
-sg <- read.csv("societe_generale_lgt_lat.csv")
-
 #Construction de la carte avec plotly
 
 #Tracé de la France découpée en zone d'emplois
