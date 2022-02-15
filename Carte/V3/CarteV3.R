@@ -1,9 +1,12 @@
-library(sf)
-library(dplyr)
+library(sf)library(dplyr)
 library(plotly)
 library(ggplot2)
 library(ggspatial)
 library(viridis)
+
+#Pour utiliser l'API mapbox
+mapboxToken <- paste("pk.eyJ1IjoiZ3JhbnQyNDk5IiwiYSI6ImNremZ6enYweDJjbjAybm8xejVqN3IwemQifQ.UTVkE6hkSjPESfp-0CPD7Q", collapse="")
+Sys.setenv("MAPBOX_TOKEN" = mapboxToken)
 
 #Chargement des données
 fd_c <- st_read('fond_ZE2020_geo20.shp')
@@ -21,10 +24,6 @@ for(i in indices){
 fd_cnew <- fd_c[-l,]
 fd <- fd_cnew[3]
 
-#Affichage graphique des zones d'emplois
-par(mar = c(0,0,1,0))
-plot(fd,reset = FALSE)
-
 #Fusion pour obtenir des zones d'emplois
 fd_cnew_plot <- fd_cnew%>% 
                 group_by(ze2020)%>% 
@@ -34,18 +33,19 @@ plot(fd_cnew_plot)
 
 fd_cnew_plot$geometry <- st_cast(fd_cnew_plot$geometry,'MULTIPOLYGON')
 
+bdd_zese <- cbind(bdd_zese,fd_cnew_plot$geometry)
 #ggplot
-
 #Construction de la map en ggplot
 map <- ggplot()+
-       geom_sf(data=fd_cnew_plot, aes(fill=ze2020,geometry=geometry),color='white',size=.2)+
+       geom_sf(data=bdd_zese, aes(fill=`Taux de pauvreté (en %) - Ensemble...6`,geometry=geometry),color='white',size=.2)+
        scale_fill_viridis_d(option = 'G')+
        theme_minimal()+
        theme(legend.position = "none")+
        theme(panel.background = element_rect(fill = "light blue"))+
-       geom_point(data=sg,aes(x=Longitude,y=Latitude),color='red',size=.6)+
+       #geom_point(data=sg,aes(x=Longitude,y=Latitude),color='red',size=.6)+
        #annotation_scale(location = "br", line_width = .3) +
        annotation_north_arrow(location = "bl", height = unit(0.7,"cm"), width = unit(0.7,"cm"))
+map
 #Conversion en plotly
 ggplotly(map)
 
@@ -54,8 +54,7 @@ ggplotly(map)
 #Construction de la carte avec plotly
 
 #Tracé de la France découpée en zone d'emplois
-fig1 <- test %>% plot_mapbox() %>% layout(mapbox = list(style = 'dark'))
-
+fig1 <- fd_cnew_plot %>% plot_mapbox() %>% layout(mapbox = list(style = 'dark'))
 #Positionnement des banques sur la carte
 fig2 <- sg %>% plot_mapbox(lat = ~Latitude, lon = ~Longitude, 
                            size=1,

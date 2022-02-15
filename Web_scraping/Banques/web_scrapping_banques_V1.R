@@ -448,7 +448,7 @@ Credit_agricole_lgt_lat <- data.frame(Banque = rep("Credit Agricole",length(agen
                  Longitude=longitude,
                  Latitude=latitude)
 
-write.csv(Credit_agricole_lgt_lat,"credit_agricole_lgt_lat.csv",row.names=FALSE)
+write.csv(Credit_agricole_lgt_lat,"Crédit_Agricole_lgt_lat.csv",row.names=FALSE)
 
 
 
