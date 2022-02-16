@@ -154,6 +154,7 @@ for (i in 1:length(departement)){
       Rue <- c(Rue,adresses[indice_rue])
       Code_postal <- c(Code_postal,adresses[indice_code])
       Ville <- c(Ville,adresses[indice_ville])
+      print('récupération des données en cours...')
     }
   }
 }
@@ -427,7 +428,7 @@ write.csv(societe_generale_lgt_lat,"Société_Générale_lgt_lat.csv",row.names 
 # aux agences au sein de cette ville : le code postal de la ville est également compris dans l'URL
 # ex : https://www.credit-agricole.fr/particulier/agence/alpes-provence/ville/aix-en-provence-13090.html
 
-# Utilisation de la base officielle des codes postaux, r?alis?e par la Poste
+# Utilisation de la base officielle des codes postaux, réalisée par la Poste
 codes_postaux <- read.csv("laposte_hexasmal.csv", sep=";")
 codes_postaux <- codes_postaux %>% select(c(Nom_commune, Code_postal))
 
@@ -452,11 +453,14 @@ agences[which(agences=="Centre Commercial Station des Orres  05200 Les Orres")] 
 
 
 longitudes <- lapply(agences, FUN=get_long)
-lattitudes <- lapply(agences, FUN=get_lat)
+latitudes <- lapply(agences, FUN=get_lat)
+
+longitudes <- unlist(longitudes)
+latitudes <- unlist(latitudes)
 
 credit_agricole <- data.frame(agences, longitudes, latitudes)
 credit_agricole <- cbind(data.frame(banque="Credit Agricole", type="coopérative"), credit_agricole)
-
+colnames(credit_agricole) <- c('Banque','Type','Adresse','Longitude','Latitude')
 write.csv(credit_agricole, "credit_agricole.csv", row.names=FALSE)
 
 
