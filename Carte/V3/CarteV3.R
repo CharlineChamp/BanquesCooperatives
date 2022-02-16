@@ -8,13 +8,9 @@ library(viridis)
 #Construction de la carte avec plotly
 
 #CHARGEMENT DES DONNEES
-fd_c <- st_read('fond_ZE2020_geo20.shp')
-bdd_zese <- readxl::read_xlsx('bdd_social_ze2020.xlsx')
-sg <- read.csv("societe_generale_lgt_lat.csv")
-
-#Chargement des données
 fd_c <- st_read('shapefile/fond_ZE2020_geo20.shp')
 bdd_zese <- readxl::read_xlsx('../Données/bdd_social_ze2020.xlsx')
+sg <- read.csv("societe_generale_lgt_lat.csv")
 
 #NETTOYAGE/UNIFORMISATION DES DONNEES
 l <- vector(length = 0)
@@ -34,22 +30,6 @@ fd_cnew_plot <- fd_cnew%>%
                 dplyr::summarize()
 
 fd_cnew_plot$geometry <- st_cast(fd_cnew_plot$geometry,'MULTIPOLYGON')
-
-#plot(fd_cnew_plot)
-#bdd_zese <- cbind(bdd_zese,fd_cnew_plot$geometry)
-bdd_zese <- cbind(bdd_zese,fd_cnew_plot$geometry)
-#ggplot
-#Construction de la map en ggplot
-map <- ggplot()+
-       geom_sf(data=bdd_zese, aes(fill=`Taux de pauvreté (en %) - Ensemble...6`,geometry=geometry),color='white',size=.2)+
-       scale_fill_viridis_c(option = 'E')+
-       theme_minimal()+
-       theme(panel.background = element_rect(fill = "light blue"))+
-       geom_point(data=sg,aes(x=Longitude,y=Latitude,group=Type,color=Type,label=Banque),size=.6)+
-        labs(fill = "Taux de pauvreté")
-map
-#Conversion en plotly
-ggplotly(map)
 
 
 #CONSTRUCTION DE LA CARTE
