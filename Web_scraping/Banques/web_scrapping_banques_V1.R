@@ -21,16 +21,16 @@ IDville <- function(villes) {
   Ville <- str_replace_all(villes," ","%20")
 }
 
-#
+# Rajoute un 0 au début du code postal si celui-ci ne contient que 4 chiffres
 
-formatage_code_postal <- function(cp){
-  if(nchar(cp) == 4){
-    cp <- paste0("0", cp)
+formatage_code_postal <- function(code_postal) {
+  if (nchar(code_postal) == 4) {
+    code_postal <- paste0("0", code_postal)
   }
-  return(cp)
+  return(code_postal)
 }
 
-#
+# Formater le nom des villes
 
 formatage <- function(str){
   str <- tolower(str)
@@ -40,35 +40,70 @@ formatage <- function(str){
   return(str)
 }
 
-#
+# Retourne les villes (dans laquelle se situent des agences) d'une région donnée
 
-get_villes <- function(region){
-  l_region <- paste0("https://www.credit-agricole.fr/particulier/agence/",region,".html")
-  p_region <- read_html(l_region)
-  villes_region <- p_region %>% html_nodes(".js-alphabetList-item") %>% html_text()
+get_villes <- function(region) {
+  lien_region <- paste0("https://www.credit-agricole.fr/particulier/agence/",region,".html") 
+  page_region <- read_html(lien_region)
+  villes_region <- page_region %>% html_nodes(".js-alphabetList-item") %>% html_text()
   return(unique(villes_region))
 }
 
-#
+# Retourne le code postal d'une ville
 
-get_codes_postaux <- function(ville){
+get_code_postal <- function(ville) {
   ville <- toupper(gsub("-", " ", ville))
-  cp <- codes_postaux[codes_postaux$Nom_commune == ville,]$Code_postal
-  return(cp)
+  code_postal <- codes_postaux[codes_postaux$Nom_commune == ville,]$Code_postal
+  return(code_postal)
 }
 
-#
+# Retourne les adresses des agences se situant au sein d'une ville donnée et d'une région donnée
 
-get_adresses <- function(ville, region){
-  cp <- get_codes_postaux(ville)
+get_adresses <- function(ville, region) {
+  code_postal <- get_code_postal(ville)
   adresses <- c()
-  for(code in cp){
-    l_a <- paste0("https://www.credit-agricole.fr/particulier/agence/", region, "/ville/", ville,"-", code, ".html")
-    p_a <- read_html(l_a)
-    adresse <- p_a %>% html_nodes(".StoreLocatorMap-AgencyAddress") %>% html_text()
+  for (code in code_postal) {
+    lien_ville <- paste0("https://www.credit-agricole.fr/particulier/agence/", region, "/ville/", ville,"-", code, ".html")
+    page_ville <- read_html(lien_ville)
+    adresse <- page_ville %>% html_nodes(".StoreLocatorMap-AgencyAddress") %>% html_text()
     adresses <- c(adresses, adresse)
   }
   return(unique(adresses))
+}
+
+# Retourne l'ensemble des adresses des agences
+get_all_adresses <- function() {
+  lien <- "https://www.credit-agricole.fr/particulier/agence.html"
+  page <- read_html(lien)
+  
+  # liste des r?gions
+  regions <- page %>% html_nodes(".indexCR-itemLink") %>% html_text()
+  regions <- lapply(regions, FUN = formatage)
+  regions <- regions[-c(19,24,34)]
+  agences <- c()
+  
+  for(r in regions){
+    # liste des villes de la r?gion "r"
+    villes_r <- get_villes(r)
+    villes_r <- lapply(villes_r, FUN = formatage)
+    for(v in villes_r){
+      agences <- c(agences, get_adresses(v, r))
+    }
+    agences <- unique(agences)
+  }
+  return(agences)
+}
+
+# Retourne la longitude d'une adresse
+
+get_long <- function(adr) {
+  geocode(adr)[1,'longitude']
+}
+
+# Retourne la lattitude d'une adresse
+
+get_lat <- function(adr) {
+  geocode(adr)[1,'latitude']
 }
 
 
@@ -134,16 +169,17 @@ indice_sans_doublon<-as.integer(row.names(sans_doublons))
 
 Credit_mutuel_sans_doublon<-data.frame(Banque=rep("Crédit Mutuel",length(indice_sans_doublon)-1),
                                        Type=rep("Coopérative",length(indice_sans_doublon)-1),
-                                       Adresse=paste(Crédit_mutuel$Rue[indice_sans_doublon[-76]],
+                                       Adresse=toupper(paste(Crédit_mutuel$Rue[indice_sans_doublon[-76]],
                                                      ", ",
                                                      Crédit_mutuel$Code_postal[indice_sans_doublon[-76]],
                                                      ", ",
-                                                     Crédit_mutuel$Ville[indice_sans_doublon[-76]]))
+                                                     Crédit_mutuel$Ville[indice_sans_doublon[-76]])))
 
 
 # Correction d'une adresse ne donnant pas de résultat pour obtenir les longitudes et latitudes
 
-Credit_mutuel_sans_doublon[2087,3] <- "9 Pl. Jean de Lattre de Tassigny, 68000 Colmar"
+Credit_mutuel_sans_doublon$Adresse[which(Credit_mutuel_sans_doublon$Adresse=="5 PLACE J DE LATTRE DE TASSIGNY ,  68025 ,  COLMAR")]<-"9 Pl. Jean de Lattre de Tassigny, 68000 Colmar"
+
 
 # Récupération des longitudes et latitudes pour chaque adresse
 
@@ -194,26 +230,24 @@ for(i in liste_departements){
 
 # Correction des adresses ne donnant pas de résultats pour obtenir les longitudes et latitudes
 
-liste_adresses[55]<-"8 Chemin de l'Oratoire Lieu-dit Les Jardins, 05240 La Salle-les-Alpes"
-liste_adresses[228]<-"Centre Commercial Ancre Marine, Chem. du Puits de Brunet, 13600 La Ciotat"
-liste_adresses[477]<- "3 A, rue de Besançon 25300 DOUBS"
-liste_adresses[538]<-"Centre Ccial Leclerc Epicentre, 1 Rue des Orvilles, 28630 Barjouville"
-liste_adresses[870]<-"93 Av. du Maréchal Juin, 34110 Frontignan"
-liste_adresses[874]<-'Rue de la Pierre Plantée Lieudit La Plaine, Ctre Cial Espace de Bocaud, 34830 Jacou'
-liste_adresses[1159]<-"Rue Gaëtan Rondeau Ctre Cial Case 14, 44200 Nantes"
-liste_adresses[1566]<-"D1016 Entrée en face du Conforama, Ctre Cial CORA, Route Nationale 16, 60740 Saint-Maximin"
-liste_adresses[1585] <- "33 Rue de l'Impératrice, 62600 Berck"
-liste_adresses[1591]<- "Ctre Cial Auchan Ave Roger Salengro 62100 CALAIS"
-liste_adresses[1696]<-"Ctre Cial, 2 Rue Louis Joseph Gay Lussac, 66330 Cabestany"
-liste_adresses[2178]<-"Rue de l'Ouest Ctre Cial Porte de Normandie, 78200 Buchelay"
-liste_adresses[2324]<-"1060, Route de l'Aerodrome-Zone Agroparc Res. l'Esplanade, Bat B, 84140"
-liste_adresses[2517]<-"47 Rue du Point du Jour, 92100 Boulogne-Billancourt"
+liste_adresses[which(liste_adresses=="Résidence Printemps- 8, ch de l'OratoireLieu-dit Les Jardins - SERRE CHEVALIER05240 LA SALLE LES ALPES")]<-"8 Chemin de l'Oratoire Lieu-dit Les Jardins, 05240 La Salle-les-Alpes"
+liste_adresses[which(liste_adresses=="Centre Commercial Ancre MarineChemin du Puits de Brunet13600 LA CIOTAT")]<-"Centre Commercial Ancre Marine, Chem. du Puits de Brunet, 13600 La Ciotat"
+liste_adresses[which(liste_adresses=="1, rue des OrvillesCentre Ccial Leclerc Epicentre28630 BARJOUVILLE")]<-"Centre Ccial Leclerc Epicentre, 1 Rue des Orvilles, 28630 Barjouville"
+liste_adresses[which(liste_adresses=="Ctre Cial Les Portes du MuscatAve du Maréchal Juin34110 FRONTIGNAN")]<-"93 Av. du Maréchal Juin, 34110 Frontignan"
+liste_adresses[which(liste_adresses=="Ctre Cial Espace de BocaudLieudit La Plaine34830 JACOU")]<-'Rue de la Pierre Plantée Lieudit La Plaine, Ctre Cial Espace de Bocaud, 34830 Jacou'
+liste_adresses[which(liste_adresses=="Ctre Cial Case 1444200 NANTES")]<-"Rue Gaëtan Rondeau Ctre Cial Case 14, 44200 Nantes"
+liste_adresses[which(liste_adresses=="33, rue de l'Impératrice62600 BERCK SUR MER")] <- "33 Rue de l'Impératrice, 62600 Berck"
+liste_adresses[which(liste_adresses=="Ctre Cial AuchanAve Roger Salengro62100 CALAIS")]<- "Ctre Cial Auchan Ave Roger Salengro 62100 CALAIS"
+liste_adresses[which(liste_adresses=="2, rue Gay LussacCtre Cial - Mas Guérido66330 CABESTANY")]<-"Ctre Cial, 2 Rue Louis Joseph Gay Lussac, 66330 Cabestany"
+liste_adresses[which(liste_adresses=="Ctre Cial Porte de Normandie78200 BUCHELAY")]<-"Rue de l'Ouest Ctre Cial Porte de Normandie, 78200 Buchelay"
+liste_adresses[which(liste_adresses=="1060, route de l'Aerodrome-Zone AGROPARCRes. l'Esplanade Bat B84140 MONTFAVET")]<-"1060, Route de l'Aerodrome-Zone Agroparc Res. l'Esplanade, Bat B, 84140"
+liste_adresses[which(liste_adresses=="146-146 bis, rue du Point du Jour3 bis, pl Jules Guesde92100 BOULOGNE BILLANCOURT")]<-"47 Rue du Point du Jour, 92100 Boulogne-Billancourt"
 
 # Création d'un data frame contenant les adresses modifiées
 
 banque_populaire <- data.frame(Banque=rep("Banque Populaire",length(liste_adresses)),
                                           Type=rep("Coopérative",length(liste_adresses)),
-                                          Adresse=liste_adresses)
+                                          Adresse=toupper(liste_adresses))
 
 # Récupération des longitudes et latitudes de chaque adresse
 
@@ -225,7 +259,6 @@ for(i in 1:length(banque_populaire$Adresse)){
   coordonnees <- geocode(adr)
   longitude<-c(longitude,coordonnees$longitude[1])
   latitude<-c(latitude,coordonnees$latitude[1])
-
 }
 
 # Ecriture des longitudes, latitudes et adresses de chaque agence de la Banque Populaire dans un data frame
@@ -281,15 +314,17 @@ for(i in 1:95){
 
 # Correction des adresses ne donnant pas de résultats pour obtenir les longitudes et latitudes
 
-Adresses[41] <- "1160 Rte de Grasse, 06600 Antibes"
-Adresses[53] <- "14 Av. Maréchal Joffre, 06160 Antibes"
-Adresses[76] <- "77 Av. de Grasse, 06580 Pégomas"
-Adresses[124] <- "645 Route De Berre Les, Bd des Deux Ormes, 13090 Aix-en-Provence"
-Adresses[145] <- "680 Rue Guillaume Du Vair Pole, 13290 Aix-en-Provence"
-Adresses[431] <- "11 rue Francois Mitterrand, 33160 Saint-Médard-en-Jalles"
-Adresses[858] <- "Av. du Plateau, 64210 Bidart"
-Adresses[1632] <- "117 Avenue du Bac 94210 Saint-Maur-des-Fossés"
-Adresses[1633] <- "32bis Avenue du Bac 94210 Saint-Maur-des-Fossés"
+Adresses[which(Adresses=="1160, Route de Grasse / Riviera Park , 06600 Antibes")] <- "1160 Rte de Grasse, 06600 Antibes"
+Adresses[which(Adresses=="14, Avenue du Marechal Joffre , 06160 Juan-les-Pins" )] <- "14 Av. Maréchal Joffre, 06160 Antibes"
+Adresses[which(Adresses=="77, Avenue de Grasse / Quartier du Logis , 06580 Pégomas")] <- "77 Av. de Grasse, 06580 Pégomas"
+Adresses[which(Adresses=="645, Route de Berre / Centre Commercial Les Deux Ormes , 13100 Aix-en-Provence")] <- "645 Route De Berre Les, Bd des Deux Ormes, 13090 Aix-en-Provence"
+Adresses[which(Adresses=="Za la Pioline Lot 37 , 13546 Les Milles" )] <- "Za La Pioline, Lot37, 13100 Aix-en-Provence"
+Adresses[which(Adresses=="Rue Francois Mitterrand , 33160 Saint-Aubin-de-Médoc")] <- "11 rue Francois Mitterrand, 33160 Saint-Médard-en-Jalles"
+Adresses[which(Adresses=="Avenue du Plateau / Bide Artean Quartier du Plateau , 64210 Bidart")] <- "Av. du Plateau, 64210 Bidart"
+Adresses[which(Adresses=="115-117 Avenue du Bac , 94210 La Varenne-Saint-Hilaire")] <- "117 Avenue du Bac 94210 Saint-Maur-des-Fossés"
+Adresses[which(Adresses=="32, B Avenue Du Bac , 94210 La Varenne-Saint-Hilaire")] <- "32bis Avenue du Bac 94210 Saint-Maur-des-Fossés"
+Adresses[which(Adresses=="60, Rue De La Tour - ZAC Des Verries , 34980 Saint-Clément-de-Rivière")] <- "ZAC LES Verries, 60 Rue de la Tour, 34980 Saint-Gély-du-Fesc"
+
 
 # Création d'un data frame contenant les adresses modifiées
 
@@ -351,14 +386,14 @@ societe_generale <- data.frame(Banque=rep("Société Générale",length(Adresse)
 
 # Correction des adresses ne donnant pas de résultats pour obtenir les longitudes et latitudes
 
-societe_generale$Adresse[1669] <- "C.Cial Croix Verte, 91250 Saint-Germain-lès-Corbeil"
-societe_generale$Adresse[455] <- "7 Crs Mal, Cr de Lattre de Tassigny, 33390 Blaye"
-societe_generale$Adresse[1108] <- "13 Crs F, Cr Franklin Roosevelt, 69006 Lyon"
-societe_generale$Adresse[1376] <- "3 All. du Préambule, 77127 Lieusaint"
-societe_generale$Adresse[1775] <- "20 Av P et M Curie, 93150 Le Blanc-Mesnil"
-societe_generale$Adresse[1830] <- "95 Bd Paul Vaillant Couturier, 94240 L'Haÿ-les-Roses"
-societe_generale$Adresse[48] <- "171 Avenue du 11 Novembre 06700 Saint-Laurent-du-Var"
-societe_generale$Adresse[78] <- "171 Avenue du 11 Novembre 06700 Saint-Laurent-du-Var"
+societe_generale$Adresse[which(Adresse=="C.CIAL CROIX VERTE91250 ST GERMAIN/CORB.")] <- "C.Cial Croix Verte, 91250 Saint-Germain-lès-Corbeil"
+societe_generale$Adresse[which(Adresse=="7 CRS MAL DE LATTRE DE TASSIGNY33390 BLAYE")] <- "7 Crs Mal, Cr de Lattre de Tassigny, 33390 Blaye"
+societe_generale$Adresse[which(Adresse=="13 CRS F.ROOSEVELT69006 LYON")] <- "13 Crs F, Cr Franklin Roosevelt, 69006 Lyon"
+societe_generale$Adresse[which(Adresse=="CTRE CIAL CARRE SENART77127 LIEUSAINT")] <- "3 All. du Préambule, 77127 Lieusaint"
+societe_generale$Adresse[which(Adresse=="20 AV P ET M CURIE93150 LE BLANC MESNIL")] <- "20 Av P et M Curie, 93150 Le Blanc-Mesnil"
+societe_generale$Adresse[which(Adresse=="95 AV P V COUTURIER94240 L'HAY-LES-ROSES")] <- "95 Bd Paul Vaillant Couturier, 94240 L'Haÿ-les-Roses"
+societe_generale$Adresse[which(Adresse=="CENTRE COMMERCIAL 300006700 SAINT-LAURENT-DU-VAR")] <- "171 Avenue du 11 Novembre 06700 Saint-Laurent-du-Var"
+societe_generale$Adresse[which(Adresse=="CENTRE COMMERCIAL 300006700 SAINT LAURENT DU VAR")] <- "171 Avenue du 11 Novembre 06700 Saint-Laurent-du-Var"
 
 # Récupération des longitudes et latitudes de chaque adresse
 
@@ -388,68 +423,41 @@ write.csv(societe_generale_lgt_lat,"Société_Générale_lgt_lat.csv",row.names 
 # CREDIT AGRICOLE
 
 
+# Avoir le nom d'une ville et la région dans laquelle elle se situe ne suffit pas pour accéder 
+# aux agences au sein de cette ville : le code postal de la ville est également compris dans l'URL
+# ex : https://www.credit-agricole.fr/particulier/agence/alpes-provence/ville/aix-en-provence-13090.html
+
+# Utilisation de la base officielle des codes postaux, r?alis?e par la Poste
 codes_postaux <- read.csv("laposte_hexasmal.csv", sep=";")
 codes_postaux <- codes_postaux %>% select(c(Nom_commune, Code_postal))
 
 codes_postaux$Code_postal <- as.character(codes_postaux$Code_postal)
+
+
 codes_postaux$Code_postal <- unlist(lapply(codes_postaux$Code_postal, FUN = formatage_code_postal))
 
-l <- "https://www.credit-agricole.fr/particulier/agence.html"
-p <- read_html(l)
 
-# liste des régions
-regions <- p %>% html_nodes(".indexCR-itemLink") %>% html_text()
-regions <- lapply(regions, FUN = formatage)
+agences <- get_all_adresses()
 
 
-regions <- regions[-c(19,24,34)]
-agences <- c()
+agences[which(agences=="PLACE LOU CAHQUE DIT (PORT)  40130 CAPBRETON")] <- "PLACE LOU CHAQUE DIT (PORT)  40130 CAPBRETON"
+agences[which(agences=="Centre Commercial de Riom Sud Avenue de Clermont  63200 MENETROL")] <- "83 AVENUE DE CLERMONT 63200 RIOM"
+agences[which(agences=="FROMENTEAU - ROUTE NATIONALE 7  03003 MOULINS")] <- "FROMENTEAU - ROUTE NATIONALE 7  03000 MOULINS"
+agences[which(agences=="Avenue du Grand Large Le Moulin des Chênes Verts  17137 Nieul-sur-Mer")] <- "30 AVENUE DU GRAND LARGE, 17137 NIEUL-SUR-MER"
+agences[which(agences=="PARC DES BALLIUS RUE DES ECOLES  34670 BAILLARGUES")] <- "410 RUE DES ECOLES 34670 BAILLARGUES"
+agences[which(agences=="Complexe du Mont Bernard - Route de Suippes  51000 CHALONS-EN-CHAMPAGNE")] <- "CHBRE AGRICULTURE MARNE BP 525, ROUTE DE SUIPPES, 51009 CHALONS-EN-CHAMPAGNE"
+agences[which(agences=="Immeuble l'Eperon B 1  38860 LES DEUX ALPES")] <- "70 AV. DE LA MUZELLE, 38860 LES DEUX ALPES"
+agences[which(agences=="Centre Commercial Station des Orres  05200 Les Orres")] <- "11 Pl. des Étoiles, 05200 Les Orres"
 
-for(r in regions){
-  # liste des villes de la région "r"
-  villes_r <- get_villes(r)
-  villes_r <- lapply(villes_r, FUN = formatage)
-  for(v in villes_r){
-    agences <- c(agences, get_adresses(v, r))
-  }
-  agences <- unique(agences)
-}
 
-agences[516] <- "PLACE LOU CHAQUE DIT (PORT)  40130 CAPBRETON"
-agences[1361] <- "83 AVENUE DE CLERMONT 63200 RIOM"
-agences[1372] <- "FROMENTEAU - ROUTE NATIONALE 7  03000 MOULINS"
-agences[2103] <- "30 AVENUE DU GRAND LARGE, 17137 NIEUL-SUR-MER"
-agences[3123] <- "Parc des Ballius, Rue des Écoles, 34670 Baillargues"
-agences[4774] <- "quartier Umede Chd, N3, 83560 Rians"
-agences[3913] <- "Route de Suippes, Le Mont Bernard, 51000 Châlons-en-Champagne"
-agences[5249] <- "70 Av. de la Muzelle, 38860 Les Deux Alpes"
-agences[5775] <- "288B AV. ANDRE MAGINOT, 37100 TOURS"
 
-longitude <-c()
-latitude<-c()
+longitudes <- lapply(agences, FUN=get_long)
+lattitudes <- lapply(agences, FUN=get_lat)
 
-for(i in 1:length(agences)){
-  adr<-agences[i]
-  coordonnees <- geocode(adr)
-  longitude<-c(longitude,coordonnees$longitude[1])
-  latitude<-c(latitude,coordonnees$latitude[1])
-  
-}
+credit_agricole <- data.frame(agences, longitudes, latitudes)
+credit_agricole <- cbind(data.frame(banque="Credit Agricole", type="coopérative"), credit_agricole)
 
-Credit_agricole <- data.frame(Banque = rep("Crédit Agricole",length(agences)),
-                 Type = rep("Coopérative",length(agences)),
-                 Adresse = agences)
-
-write.csv(Credit_agricole,"Crédit_Agricole.csv",row.names=FALSE)
-
-Credit_agricole_lgt_lat <- data.frame(Banque = rep("Credit Agricole",length(agences)),
-                 Type = rep("Coopérative",length(agences)),
-                 Adresse=agences,
-                 Longitude=longitude,
-                 Latitude=latitude)
-
-write.csv(Credit_agricole_lgt_lat,"Crédit_Agricole_lgt_lat.csv",row.names=FALSE)
-
+write.csv(credit_agricole, "credit_agricole.csv", row.names=FALSE)
 
 
 # Création d'un data frame regroupant les adresses, longitudes et latitudes de toutes les banques ci-dessus
@@ -458,7 +466,7 @@ data_banque <- rbind(credit_mutuel_lng_lat,
                      Banque_populaire_lgt_lat,
                      Bnp_paribas_lgt_lat,
                      societe_generale_lgt_lat,
-                     Credit_agricole_lgt_lat)
+                     credit_agricole)
 
 
 write.csv(data_banque,"Coordonnées_Banques.csv",row.names = FALSE)
