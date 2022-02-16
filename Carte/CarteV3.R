@@ -7,17 +7,14 @@ library(viridis)
 #PLOTLY
 #Construction de la carte avec plotly
 
-<<<<<<< HEAD
 #CHARGEMENT DES DONNEES
 fd_c <- st_read('fond_ZE2020_geo20.shp')
 bdd_zese <- readxl::read_xlsx('bdd_social_ze2020.xlsx')
 sg <- read.csv("societe_generale_lgt_lat.csv")
-=======
+
 #Chargement des données
 fd_c <- st_read('shapefile/fond_ZE2020_geo20.shp')
 bdd_zese <- readxl::read_xlsx('../Données/bdd_social_ze2020.xlsx')
-sg <- read.csv("../Données/Banques/coordonnees_banque.csv")
->>>>>>> de5bf6d1d6fb813fdbd15471a3664538b2b8a7fb
 
 #NETTOYAGE/UNIFORMISATION DES DONNEES
 l <- vector(length = 0)
@@ -38,10 +35,8 @@ fd_cnew_plot <- fd_cnew%>%
 
 fd_cnew_plot$geometry <- st_cast(fd_cnew_plot$geometry,'MULTIPOLYGON')
 
-<<<<<<< HEAD
 #plot(fd_cnew_plot)
 #bdd_zese <- cbind(bdd_zese,fd_cnew_plot$geometry)
-=======
 bdd_zese <- cbind(bdd_zese,fd_cnew_plot$geometry)
 #ggplot
 #Construction de la map en ggplot
@@ -55,7 +50,6 @@ map <- ggplot()+
 map
 #Conversion en plotly
 ggplotly(map)
->>>>>>> de5bf6d1d6fb813fdbd15471a3664538b2b8a7fb
 
 
 #CONSTRUCTION DE LA CARTE
