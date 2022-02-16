@@ -5,10 +5,6 @@ library(ggplot2)
 library(ggspatial)
 library(viridis)
 
-#Pour utiliser l'API mapbox
-mapboxToken <- paste("pk.eyJ1IjoiZ3JhbnQyNDk5IiwiYSI6ImNremZ6enYweDJjbjAybm8xejVqN3IwemQifQ.UTVkE6hkSjPESfp-0CPD7Q", collapse="")
-Sys.setenv("MAPBOX_TOKEN" = mapboxToken)
-
 #Chargement des données
 fd_c <- st_read('shapefile/fond_ZE2020_geo20.shp')
 bdd_zese <- readxl::read_xlsx('../Données/bdd_social_ze2020.xlsx')
