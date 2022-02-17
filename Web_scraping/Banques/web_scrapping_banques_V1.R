@@ -329,14 +329,15 @@ Adresses[which(Adresses=="60, Rue De La Tour - ZAC Des Verries , 34980 Saint-Cl�
 
 # Création d'un data frame contenant les adresses modifiées
 
+
 bnp_paribas <- data.frame(Banque=rep("Bnp Paribas",length(Adresses)),
                           Type=rep("Lucrative",length(Adresses)),
-                          Adresse=Adresses)
+                          Adresse=toupper(Adresses))
 
 # Récupération des longitudes et latitudes de chaque adresse
 
 longitude <-c()
-latitude<-c()
+latitude <- c()
 
 for(i in 1:length(bnp_paribas$Adresse)){
   adr<-bnp_paribas$Adresse[i]
@@ -354,7 +355,7 @@ Bnp_paribas_lgt_lat <- data.frame(Banque=bnp_paribas$Banque,
                                   Latitude=latitude)
 
 write.csv(bnp_paribas,"Bnp_Paribas.csv",row.names = FALSE)
-write.csv(Bnp_paribas_lgt_lat,"Bnp_Paribas_lgt_lat.csv",row.names = FALSE)
+write.csv(Bnp_paribas_lgt_lat,"BNP_Paribas_lgt_lat.csv",row.names = FALSE)
 
 
 # SOCIETE GENERALE
@@ -399,7 +400,7 @@ societe_generale$Adresse[which(Adresse=="CENTRE COMMERCIAL 300006700 SAINT LAURE
 # Récupération des longitudes et latitudes de chaque adresse
 
 longitude <-c()
-latitude<-c()
+latitude <-c()
 
 for(i in 1:length(societe_generale$Adresse)){
   adr<-societe_generale$Adresse[i]
@@ -459,10 +460,13 @@ longitudes <- unlist(longitudes)
 latitudes <- unlist(latitudes)
 
 credit_agricole <- data.frame(agences, longitudes, latitudes)
-credit_agricole <- cbind(data.frame(banque="Credit Agricole", type="coopérative"), credit_agricole)
+credit_agricole <- cbind(data.frame(banque="Credit Agricole", type="Coopérative"), credit_agricole)
 colnames(credit_agricole) <- c('Banque','Type','Adresse','Longitude','Latitude')
-credit_agricole$Type <- rep("Coopérative",length(credit_agricole$Banque))
-write.csv(credit_agricole, "credit_agricole.csv", row.names=FALSE)
+credit_agricole$Adresse <- toupper(credit_agricole$Adresse)
+
+cred_agri <- data.frame(Banque="Credit Agricole",Type="Coopérative",Adresse=toupper(agences))
+write.csv(cred_agri,"Crédit_Agricole.csv",row.names = FALSE)
+write.csv(credit_agricole, "Crédit_Agricole_lgt_lat.csv", row.names=FALSE)
 
 
 # Création d'un data frame regroupant les adresses, longitudes et latitudes de toutes les banques ci-dessus
