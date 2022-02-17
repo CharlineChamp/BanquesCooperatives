@@ -450,7 +450,7 @@ agences[which(agences=="PARC DES BALLIUS RUE DES ECOLES  34670 BAILLARGUES")] <-
 agences[which(agences=="Complexe du Mont Bernard - Route de Suippes  51000 CHALONS-EN-CHAMPAGNE")] <- "CHBRE AGRICULTURE MARNE BP 525, ROUTE DE SUIPPES, 51009 CHALONS-EN-CHAMPAGNE"
 agences[which(agences=="Immeuble l'Eperon B 1  38860 LES DEUX ALPES")] <- "70 AV. DE LA MUZELLE, 38860 LES DEUX ALPES"
 agences[which(agences=="Centre Commercial Station des Orres  05200 Les Orres")] <- "11 Pl. des Étoiles, 05200 Les Orres"
-
+agences[which(agences=="IMMEUBLE LE ROND POINT  06340 LA TRINITE")] <- "Bd François Suarez, 06340 La Trinité"
 
 
 longitudes <- lapply(agences, FUN=get_long)
