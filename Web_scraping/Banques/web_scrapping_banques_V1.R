@@ -459,8 +459,9 @@ longitudes <- unlist(longitudes)
 latitudes <- unlist(latitudes)
 
 credit_agricole <- data.frame(agences, longitudes, latitudes)
-credit_agricole <- cbind(data.frame(banque="Credit Agricole", type="Coopérative"), credit_agricole)
+credit_agricole <- cbind(data.frame(banque="Credit Agricole", type="coopérative"), credit_agricole)
 colnames(credit_agricole) <- c('Banque','Type','Adresse','Longitude','Latitude')
+credit_agricole$Type <- rep("Coopérative",length(credit_agricole$Banque))
 write.csv(credit_agricole, "credit_agricole.csv", row.names=FALSE)
 
 
