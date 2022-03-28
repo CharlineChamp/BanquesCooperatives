@@ -33,13 +33,14 @@ fd_cnew_plot$geometry <- st_cast(fd_cnew_plot$geometry,'MULTIPOLYGON')
 bdd_zese <- cbind(bdd_zese,fd_cnew_plot$geometry)
 #ggplot
 #Construction de la map en ggplot
+banque <- dplyr::filter(banque,Banque=="Credit Agricole")
 map <- ggplot()+
-    geom_sf(data=bdd_zese, aes(fill=`Taux de pauvreté (en %) - Ensemble...6`,geometry=geometry),color='white',size=.2)+
-    scale_fill_viridis_c(option = 'E')+
-    theme_minimal()+
-    theme(panel.background = element_rect(fill = "light blue"))+
-    geom_point(data=sg,aes(x=Longitude,y=Latitude,group=Type,color=Type,label=Banque),size=.6)+
-    labs(fill = "Taux de pauvreté")
+       geom_sf(data=bdd_zese, aes(fill=`Taux de pauvreté (en %) - Ensemble`,geometry=geometry),color='white',size=.2)+
+       scale_fill_viridis_c(option = 'E')+
+       theme_minimal()+
+       theme(panel.background = element_rect(fill = "light blue"))+
+       geom_point(data=banque,aes(x=Longitude,y=Latitude,group=Type,color=Type,label=Banque),size=.6)+
+       labs(fill = "Taux de pauvreté")
 map
 #Conversion en plotly
 ggplotly(map)

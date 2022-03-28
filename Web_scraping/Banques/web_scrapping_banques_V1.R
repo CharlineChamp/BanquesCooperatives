@@ -451,7 +451,7 @@ agences[which(agences=="Complexe du Mont Bernard - Route de Suippes  51000 CHALO
 agences[which(agences=="Immeuble l'Eperon B 1  38860 LES DEUX ALPES")] <- "70 AV. DE LA MUZELLE, 38860 LES DEUX ALPES"
 agences[which(agences=="Centre Commercial Station des Orres  05200 Les Orres")] <- "11 Pl. des Étoiles, 05200 Les Orres"
 agences[which(agences=="IMMEUBLE LE ROND POINT  06340 LA TRINITE")] <- "Bd François Suarez, 06340 La Trinité"
-
+agences[which(agences=="2 PLACE DU MARÉCHAL LECLERC  88510 ELOYES")] <- "2 Rue du Perreuil 88510 Éloyes"
 
 longitudes <- lapply(agences, FUN=get_long)
 latitudes <- lapply(agences, FUN=get_lat)

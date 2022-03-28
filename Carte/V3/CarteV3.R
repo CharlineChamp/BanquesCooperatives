@@ -8,9 +8,10 @@ library(viridis)
 #Construction de la carte avec plotly
 
 #CHARGEMENT DES DONNEES
+#setwd("BanquesCooperatives/Carte")
 fd_c <- st_read('shapefile/fond_ZE2020_geo20.shp')
-bdd_zese <- readxl::read_xlsx('../Données/bdd_social_ze2020.xlsx')
-sg <- read.csv("societe_generale_lgt_lat.csv")
+bdd_zese <- readxl::read_excel('../Données/bdd_social_ze2020.xlsx')
+banque <- read.csv("../Données/Coordonnées_banques.csv")
 
 #NETTOYAGE/UNIFORMISATION DES DONNEES
 l <- vector(length = 0)
@@ -38,14 +39,14 @@ mapboxToken <- paste("pk.eyJ1IjoiZ3JhbnQyNDk5IiwiYSI6ImNremZ6enYweDJjbjAybm8xejV
 Sys.setenv("MAPBOX_TOKEN" = mapboxToken)
 
 #Tracé de la France découpée en zone d'emplois
-fig <- fd_cnew_plot %>% plot_mapbox() %>% layout(mapbox = list(style = 'dark'))
-
+fig1 <- plot_mapbox(data = polygon) %>% layout(mapbox = list(style = 'dark'))
+fig1
 #Positionnement des banques sur la carte
-fig <- plot_mapbox(data = sg,lat = ~Latitude, lon = ~Longitude, 
-                          split= ~Type,
-                          size=1,
-                          mode = 'markers', hoverinfo='text',
-                          marker = list(size = 8))
+fig <- plot_mapbox(data = banque,lon=~Longitude,lat=~Latitude,
+                   split=~Banque,
+                   size=1,
+                   mode = 'markers', hoverinfo='text',
+                   marker = list(size = 8, opacity = .5))
 
 fig <- fig %>% layout(title = 'Banques Coopératives',
                       font = list(color='white'),
@@ -59,4 +60,16 @@ fig <- fig %>% layout(title = 'Banques Coopératives',
 fig <- fig %>% config(mapboxAccessToken = Sys.getenv("MAPBOX_TOKEN"))
 
 fig
+subplot(fig,fig1)
+test <- st_as_sf(sg)
+
+polygon <- banque %>%
+           st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326) %>%
+           summarise(geometry = st_combine(geometry)) %>%
+           st_cast("POINT")
+
+
+
+final_df=merge(fd_cnew_plot,banque,all.x = TRUE,all.y = TRUE)
+
 
