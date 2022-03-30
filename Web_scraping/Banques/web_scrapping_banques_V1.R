@@ -76,12 +76,13 @@ get_all_adresses <- function() {
   lien <- "https://www.credit-agricole.fr/particulier/agence.html"
   page <- read_html(lien)
   
-  # liste des r?gions
+  # liste des régions
   regions <- page %>% html_nodes(".indexCR-itemLink") %>% html_text()
   regions <- lapply(regions, FUN = formatage)
-  regions <- regions[-c(19,24,34)]
+  regions <- regions[regions!="reunion" & regions!="guadeloupe" & regions != "martinique-guyane"]
+  regions[regions=="paris-et-ile-de-france"] <- "paris"
   agences <- c()
-  
+
   for(r in regions){
     # liste des villes de la r?gion "r"
     villes_r <- get_villes(r)
@@ -171,9 +172,9 @@ indice_sans_doublon<-as.integer(row.names(sans_doublons))
 Credit_mutuel_sans_doublon<-data.frame(Banque=rep("Crédit Mutuel",length(indice_sans_doublon)-1),
                                        Type=rep("Coopérative",length(indice_sans_doublon)-1),
                                        Adresse=toupper(paste(Crédit_mutuel$Rue[indice_sans_doublon[-76]],
-                                                     ", ",
+                                                     " ",
                                                      Crédit_mutuel$Code_postal[indice_sans_doublon[-76]],
-                                                     ", ",
+                                                     " ",
                                                      Crédit_mutuel$Ville[indice_sans_doublon[-76]])))
 
 
@@ -441,7 +442,7 @@ codes_postaux$Code_postal <- unlist(lapply(codes_postaux$Code_postal, FUN = form
 
 agences <- get_all_adresses()
 
-
+agences <- c(agences,"64 Rue de Passy 75116 Paris","16 Avenue George V 75008 Paris")
 agences[which(agences=="PLACE LOU CAHQUE DIT (PORT)  40130 CAPBRETON")] <- "PLACE LOU CHAQUE DIT (PORT)  40130 CAPBRETON"
 agences[which(agences=="Centre Commercial de Riom Sud Avenue de Clermont  63200 MENETROL")] <- "83 AVENUE DE CLERMONT 63200 RIOM"
 agences[which(agences=="FROMENTEAU - ROUTE NATIONALE 7  03003 MOULINS")] <- "FROMENTEAU - ROUTE NATIONALE 7  03000 MOULINS"
@@ -460,11 +461,11 @@ longitudes <- unlist(longitudes)
 latitudes <- unlist(latitudes)
 
 credit_agricole <- data.frame(agences, longitudes, latitudes)
-credit_agricole <- cbind(data.frame(banque="Credit Agricole", type="Coopérative"), credit_agricole)
+credit_agricole <- cbind(data.frame(banque="Crédit Agricole", type="Coopérative"), credit_agricole)
 colnames(credit_agricole) <- c('Banque','Type','Adresse','Longitude','Latitude')
 credit_agricole$Adresse <- toupper(credit_agricole$Adresse)
 
-cred_agri <- data.frame(Banque="Credit Agricole",Type="Coopérative",Adresse=toupper(agences))
+cred_agri <- data.frame(Banque="Crédit Agricole",Type="Coopérative",Adresse=toupper(agences))
 write.csv(cred_agri,"Crédit_Agricole.csv",row.names = FALSE)
 write.csv(credit_agricole, "Crédit_Agricole_lgt_lat.csv", row.names=FALSE)
 

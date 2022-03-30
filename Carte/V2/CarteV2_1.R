@@ -35,7 +35,7 @@ bdd_zese <- cbind(bdd_zese,fd_cnew_plot$geometry)
 #Construction de la map en ggplot
 banque <- dplyr::filter(banque,Banque=="Credit Agricole")
 map <- ggplot()+
-       geom_sf(data=bdd_zese, aes(fill=`Taux de pauvreté (en %) - Ensemble`,geometry=geometry),color='white',size=.2)+
+       geom_sf(data=bdd_zese, aes(geometry=geometry),color='black',size=.2)+
        scale_fill_viridis_c(option = 'E')+
        theme_minimal()+
        theme(panel.background = element_rect(fill = "light blue"))+
