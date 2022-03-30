@@ -69,14 +69,15 @@ get_all_adresses <- function() {
   lien <- "https://www.credit-agricole.fr/particulier/agence.html"
   page <- read_html(lien)
   
-  # liste des r?gions
+  # liste des régions
   regions <- page %>% html_nodes(".indexCR-itemLink") %>% html_text()
   regions <- lapply(regions, FUN = formatage)
-  regions <- regions[-c(19,24,34)]
+  regions <- regions[regions!="reunion" & regions!="guadeloupe" & regions != "martinique-guyane"]
+  regions[regions=="paris-et-ile-de-france"] <- "paris"
   agences <- c()
   
   for(r in regions){
-    # liste des villes de la r?gion "r"
+    # liste des villes de la région "r"
     villes_r <- get_villes(r)
     villes_r <- lapply(villes_r, FUN = formatage)
     for(v in villes_r){
@@ -97,111 +98,9 @@ get_lat <- function(adr) {
   geocode(adr)[1,'latitude']
 }
 
-
-# BANQUES ----------------------------------------------------------------------
-
-
-# CREDIT MUTUEL
-
-
-# Récupération des départements où il a des agences
-
-link <- "https://www.creditmutuel.fr/fr/banques/contact/trouver-une-agence/BrowseSubdivision.aspx"
-page <- read_html(link)
-departement <- page %>% html_nodes(".c") %>% html_text()
-
-# Suppression des DROM de la liste
-
-departement<-departement[-c(88,89,91,92)]
-
-Rue <-c()
-Ville <-c()
-Code_postal <-c()
-
-# Récupération des adresses de chaque banque du Crédit Mutuel
-
-for (i in 1:length(departement)){
-  link <- paste0("https://www.creditmutuel.fr/fr/banques/contact/trouver-une-agence/BrowseLocality.aspx?SubdivisionId=FR-",departement[i])
-  page <- read_html(link)
-  
-  # Récupération des villes du département
-  
-  villes <- page %>% html_nodes(".nowrap") %>% html_text()
-  villesID <- IDville(villes)
-  
-  for (j in 1:length(villesID)){
-    
-    # Récupération des adresses (rue, code postal et ville) autour de chaque ville séléctionnée
-    
-    link <- paste0("https://www.creditmutuel.fr/fr/banques/contact/trouver-une-agence/SearchList.aspx?sub=true&type=branch&loca=",villesID[j])
-    page <- read_html(link)
-    adresses <- page %>% html_nodes("em span") %>% html_text()
-    
-    if(length(adresses>0)){
-      indice_rue<- seq(3,length(adresses),5)
-      indice_code<- seq(4,length(adresses),5)
-      indice_ville<- seq(5,length(adresses),5)
-      
-      Rue <- c(Rue,adresses[indice_rue])
-      Code_postal <- c(Code_postal,adresses[indice_code])
-      Ville <- c(Ville,adresses[indice_ville])
-      print('récupération des données en cours...')
-    }
-  }
-}
-
-# Suppression des adresses doublons
-
-Crédit_mutuel <- data.frame(Rue,Code_postal,Ville)
-sans_doublons<-unique(Crédit_mutuel[,c(1,3)])
-indice_sans_doublon<-as.integer(row.names(sans_doublons))
-
-
-# Ecriture des adresses dans un data frame
-
-Credit_mutuel_sans_doublon<-data.frame(Banque=rep("Crédit Mutuel",length(indice_sans_doublon)-1),
-                                       Type=rep("Coopérative",length(indice_sans_doublon)-1),
-                                       Adresse=toupper(paste(Crédit_mutuel$Rue[indice_sans_doublon[-76]],
-                                                             ", ",
-                                                             Crédit_mutuel$Code_postal[indice_sans_doublon[-76]],
-                                                             ", ",
-                                                             Crédit_mutuel$Ville[indice_sans_doublon[-76]])))
-
-
-# Correction d'une adresse ne donnant pas de résultat pour obtenir les longitudes et latitudes
-
-Credit_mutuel_sans_doublon$Adresse[which(Credit_mutuel_sans_doublon$Adresse=="5 PLACE J DE LATTRE DE TASSIGNY ,  68025 ,  COLMAR")]<-"9 Pl. Jean de Lattre de Tassigny, 68000 Colmar"
-
-
-# Récupération des longitudes et latitudes pour chaque adresse
-
-longitude <-c()
-latitude<-c()
-
-for(i in 1:length(Credit_mutuel_sans_doublon$Adresse)){
-  adr<-Credit_mutuel_sans_doublon$Adresse[i]
-  coordonnees <- geocode(adr)
-  longitude<-c(longitude,coordonnees$longitude[1])
-  latitude<-c(latitude,coordonnees$latitude[1])
-}
-
-# Ecriture des longitudes, latitudes et adresses de chaque banque du Crédit Mutuel dans un data frame
-
-credit_mutuel_lng_lat<-data.frame(Banque=Credit_mutuel_sans_doublon$Banque,
-                                  Type=Credit_mutuel_sans_doublon$Type,
-                                  Adresse=Credit_mutuel_sans_doublon$Adresse,
-                                  Longitude=longitude,
-                                  Latitude=latitude)
-
-write.csv(Credit_mutuel_sans_doublon,"Crédit_Mutuel.csv",row.names = FALSE)
-write.csv(credit_mutuel_lng_lat,"Crédit_Mutuel_lgt_lat.csv",row.names = FALSE)
-
-
-# BANQUE POPULAIRE
-
+# BANQUES - BANQUE POPULAIRE----------------------------------------------------
 
 # Récupération des départements en France métropolitaine ainsi que de leurs numéros
-
 link <- "https://www.departements-gouv.fr/"
 page <- read_html(link)
 liste_departements <- page %>% html_nodes("td") %>% html_text()
@@ -209,7 +108,6 @@ liste_departements <- paste0(tolower(liste_departements[seq(2,192,2)]),"-",liste
 
 
 # Récupération des adresses des agences de la Banque Populaire
-
 liste_adresses <- c()
 part_link <- "https://agences.banquepopulaire.fr/banque-assurance/agences"
 
@@ -221,7 +119,6 @@ for(i in liste_departements){
 }
 
 # Correction des adresses ne donnant pas de résultats pour obtenir les longitudes et latitudes
-
 liste_adresses[which(liste_adresses=="Résidence Printemps- 8, ch de l'OratoireLieu-dit Les Jardins - SERRE CHEVALIER05240 LA SALLE LES ALPES")]<-"8 Chemin de l'Oratoire Lieu-dit Les Jardins, 05240 La Salle-les-Alpes"
 liste_adresses[which(liste_adresses=="Centre Commercial Ancre MarineChemin du Puits de Brunet13600 LA CIOTAT")]<-"Centre Commercial Ancre Marine, Chem. du Puits de Brunet, 13600 La Ciotat"
 liste_adresses[which(liste_adresses=="1, rue des OrvillesCentre Ccial Leclerc Epicentre28630 BARJOUVILLE")]<-"Centre Ccial Leclerc Epicentre, 1 Rue des Orvilles, 28630 Barjouville"
@@ -234,17 +131,16 @@ liste_adresses[which(liste_adresses=="2, rue Gay LussacCtre Cial - Mas Guérido6
 liste_adresses[which(liste_adresses=="Ctre Cial Porte de Normandie78200 BUCHELAY")]<-"Rue de l'Ouest Ctre Cial Porte de Normandie, 78200 Buchelay"
 liste_adresses[which(liste_adresses=="1060, route de l'Aerodrome-Zone AGROPARCRes. l'Esplanade Bat B84140 MONTFAVET")]<-"1060, Route de l'Aerodrome-Zone Agroparc Res. l'Esplanade, Bat B, 84140"
 liste_adresses[which(liste_adresses=="146-146 bis, rue du Point du Jour3 bis, pl Jules Guesde92100 BOULOGNE BILLANCOURT")]<-"47 Rue du Point du Jour, 92100 Boulogne-Billancourt"
+liste_adresses[which(liste_adresses=="entrée en face du ConforamaCtre Cial CORA - RN 1660740 ST MAXIMIN")]<-"282 Av. Gabriel Péri, 83470 Saint-Maximin-la-Sainte-Baume"
 
 # Création d'un data frame contenant les adresses modifiées
-
 banque_populaire <- data.frame(Banque=rep("Banque Populaire",length(liste_adresses)),
                                Type=rep("Coopérative",length(liste_adresses)),
                                Adresse=toupper(liste_adresses))
 
 # Récupération des longitudes et latitudes de chaque adresse
-
-longitude <-c()
-latitude<-c()
+longitude <- c()
+latitude <- c()
 
 for(i in 1:length(banque_populaire$Adresse)){
   adr<-banque_populaire$Adresse[i]
@@ -253,23 +149,28 @@ for(i in 1:length(banque_populaire$Adresse)){
   latitude<-c(latitude,coordonnees$latitude[1])
 }
 
-# Ecriture des longitudes, latitudes et adresses de chaque agence de la Banque Populaire dans un data frame
+# On retire les doublons d'adresse
+coord <- data.frame(longitude,latitude)
 
+indice_sans_doublon <- as.integer(row.names(unique(coord)))
+
+banque_populaire <- banque_populaire[indice_sans_doublon,]
+
+# Ecriture des longitudes, latitudes et adresses de chaque agence de la Banque Populaire dans un data frame
 Banque_populaire_lgt_lat <- data.frame(Banque=banque_populaire$Banque,
                                        Type=banque_populaire$Type,
                                        Adresse=banque_populaire$Adresse,
-                                       Longitude=longitude,
-                                       Latitude=latitude)
+                                       Longitude=longitude[indice_sans_doublon],
+                                       Latitude=latitude[indice_sans_doublon])
 
 write.csv(banque_populaire,"Banque_Populaire.csv",row.names = FALSE)
 write.csv(Banque_populaire_lgt_lat,"Banque_Populaire_lgt_lat.csv",row.names = FALSE)
 
 
-# BNP PARIBAS
+# BANQUES - BNP PARIBAS --------------------------------------------------------
 
 
 # Récupération des adresses des agences Bnp Paribas
-
 link_part <- "https://www.moneyvox.fr/pratique/agences/bnp-paribas/"
 
 Adresses <-c()
@@ -305,7 +206,6 @@ for(i in 1:95){
 
 
 # Correction des adresses ne donnant pas de résultats pour obtenir les longitudes et latitudes
-
 Adresses[which(Adresses=="1160, Route de Grasse / Riviera Park , 06600 Antibes")] <- "1160 Rte de Grasse, 06600 Antibes"
 Adresses[which(Adresses=="14, Avenue du Marechal Joffre , 06160 Juan-les-Pins" )] <- "14 Av. Maréchal Joffre, 06160 Antibes"
 Adresses[which(Adresses=="77, Avenue de Grasse / Quartier du Logis , 06580 Pégomas")] <- "77 Av. de Grasse, 06580 Pégomas"
@@ -319,14 +219,11 @@ Adresses[which(Adresses=="60, Rue De La Tour - ZAC Des Verries , 34980 Saint-Cl�
 
 
 # Création d'un data frame contenant les adresses modifiées
-
-
 bnp_paribas <- data.frame(Banque=rep("Bnp Paribas",length(Adresses)),
                           Type=rep("Lucrative",length(Adresses)),
                           Adresse=toupper(Adresses))
 
 # Récupération des longitudes et latitudes de chaque adresse
-
 longitude <-c()
 latitude <- c()
 
@@ -338,7 +235,6 @@ for(i in 1:length(bnp_paribas$Adresse)){
 }
 
 # Ecriture des longitudes, latitudes et adresses de chaque agence Bnp Paribas dans un data frame
-
 Bnp_paribas_lgt_lat <- data.frame(Banque=bnp_paribas$Banque,
                                   Type=bnp_paribas$Type,
                                   Adresse=bnp_paribas$Adresse,
@@ -348,19 +244,102 @@ Bnp_paribas_lgt_lat <- data.frame(Banque=bnp_paribas$Banque,
 write.csv(bnp_paribas,"Bnp_Paribas.csv",row.names = FALSE)
 write.csv(Bnp_paribas_lgt_lat,"BNP_Paribas_lgt_lat.csv",row.names = FALSE)
 
+# BANQUES - CREDIT MUTUEL-------------------------------------------------------
 
-# SOCIETE GENERALE
+# Récupération des départements où il a des agences
+link <- "https://www.creditmutuel.fr/fr/banques/contact/trouver-une-agence/BrowseSubdivision.aspx"
+page <- read_html(link)
+departement <- page %>% html_nodes(".c") %>% html_text()
+
+# Suppression des DROM de la liste
+departement<-departement[-c(88,89,91,92)]
+
+Rue <-c()
+Ville <-c()
+Code_postal <-c()
+
+# Récupération des adresses de chaque banque du Crédit Mutuel
+for (i in 1:length(departement)){
+  link <- paste0("https://www.creditmutuel.fr/fr/banques/contact/trouver-une-agence/BrowseLocality.aspx?SubdivisionId=FR-",departement[i])
+  page <- read_html(link)
+  
+  # Récupération des villes du département
+  
+  villes <- page %>% html_nodes(".nowrap") %>% html_text()
+  villesID <- IDville(villes)
+  
+  for (j in 1:length(villesID)){
+    
+    # Récupération des adresses (rue, code postal et ville) autour de chaque ville séléctionnée
+    
+    link <- paste0("https://www.creditmutuel.fr/fr/banques/contact/trouver-une-agence/SearchList.aspx?sub=true&type=branch&loca=",villesID[j])
+    page <- read_html(link)
+    adresses <- page %>% html_nodes("em span") %>% html_text()
+    
+    if(length(adresses>0)){
+      indice_rue<- seq(3,length(adresses),5)
+      indice_code<- seq(4,length(adresses),5)
+      indice_ville<- seq(5,length(adresses),5)
+      
+      Rue <- c(Rue,adresses[indice_rue])
+      Code_postal <- c(Code_postal,adresses[indice_code])
+      Ville <- c(Ville,adresses[indice_ville])
+      print('récupération des données en cours...')
+    }
+  }
+}
+
+# Suppression des adresses doublons
+Crédit_mutuel <- data.frame(Rue,Code_postal,Ville)
+sans_doublons<-unique(Crédit_mutuel[,c(1,3)])
+indice_sans_doublon<-as.integer(row.names(sans_doublons))
+
+
+# Ecriture des adresses dans un data frame
+Credit_mutuel_sans_doublon<-data.frame(Banque=rep("Crédit Mutuel",length(indice_sans_doublon)-1),
+                                       Type=rep("Coopérative",length(indice_sans_doublon)-1),
+                                       Adresse=toupper(paste(Crédit_mutuel$Rue[indice_sans_doublon[-76]],
+                                                             ", ",
+                                                             Crédit_mutuel$Code_postal[indice_sans_doublon[-76]],
+                                                             ", ",
+                                                             Crédit_mutuel$Ville[indice_sans_doublon[-76]])))
+
+
+# Correction d'une adresse ne donnant pas de résultat pour obtenir les longitudes et latitudes
+Credit_mutuel_sans_doublon$Adresse[which(Credit_mutuel_sans_doublon$Adresse=="5 PLACE J DE LATTRE DE TASSIGNY ,  68025 ,  COLMAR")]<-"9 Pl. Jean de Lattre de Tassigny, 68000 Colmar"
+
+
+# Récupération des longitudes et latitudes pour chaque adresse
+longitude <-c()
+latitude<-c()
+
+for(i in 1:length(Credit_mutuel_sans_doublon$Adresse)){
+  adr<-Credit_mutuel_sans_doublon$Adresse[i]
+  coordonnees <- geocode(adr)
+  longitude<-c(longitude,coordonnees$longitude[1])
+  latitude<-c(latitude,coordonnees$latitude[1])
+}
+
+# Ecriture des longitudes, latitudes et adresses de chaque banque du Crédit Mutuel dans un data frame
+credit_mutuel_lng_lat<-data.frame(Banque=Credit_mutuel_sans_doublon$Banque,
+                                  Type=Credit_mutuel_sans_doublon$Type,
+                                  Adresse=Credit_mutuel_sans_doublon$Adresse,
+                                  Longitude=longitude,
+                                  Latitude=latitude)
+
+write.csv(Credit_mutuel_sans_doublon,"Crédit_Mutuel.csv",row.names = FALSE)
+write.csv(credit_mutuel_lng_lat,"Crédit_Mutuel_lgt_lat.csv",row.names = FALSE)
+
+# BANQUES - SOCIETE GENERALE ---------------------------------------------------
 
 
 # Récupération des départements en France métropolitaine ainsi que de leurs numéros
-
 link <- "https://www.departements-gouv.fr/"
 page <- read_html(link)
 liste_departements <- page %>% html_nodes("td") %>% html_text()
 liste_departements <- paste0(tolower(liste_departements[seq(2,192,2)]),"-",liste_departements[seq(1,192,2)])
 
 # Récupération des adresses des agences de la Société Générale
-
 link <- "https://agences.societegenerale.fr/banque-assurance/agences-"
 Adresse <- c()
 
@@ -372,13 +351,11 @@ for(i in liste_departements){
 }
 
 # Création d'un data frame contenant les adresses modifiées
-
 societe_generale <- data.frame(Banque=rep("Société Générale",length(Adresse)),
                                Type=rep("Lucrative",length(Adresse)),
                                Adresse=Adresse)
 
 # Correction des adresses ne donnant pas de résultats pour obtenir les longitudes et latitudes
-
 societe_generale$Adresse[which(Adresse=="C.CIAL CROIX VERTE91250 ST GERMAIN/CORB.")] <- "C.Cial Croix Verte, 91250 Saint-Germain-lès-Corbeil"
 societe_generale$Adresse[which(Adresse=="7 CRS MAL DE LATTRE DE TASSIGNY33390 BLAYE")] <- "7 Crs Mal, Cr de Lattre de Tassigny, 33390 Blaye"
 societe_generale$Adresse[which(Adresse=="13 CRS F.ROOSEVELT69006 LYON")] <- "13 Crs F, Cr Franklin Roosevelt, 69006 Lyon"
@@ -389,7 +366,6 @@ societe_generale$Adresse[which(Adresse=="CENTRE COMMERCIAL 300006700 SAINT-LAURE
 societe_generale$Adresse[which(Adresse=="CENTRE COMMERCIAL 300006700 SAINT LAURENT DU VAR")] <- "171 Avenue du 11 Novembre 06700 Saint-Laurent-du-Var"
 
 # Récupération des longitudes et latitudes de chaque adresse
-
 longitude <-c()
 latitude <-c()
 
@@ -402,7 +378,6 @@ for(i in 1:length(societe_generale$Adresse)){
 }
 
 # Ecriture des longitudes, latitudes et adresses de chaque agence de la Société Générale dans un data frame
-
 societe_generale_lgt_lat <- data.frame(Banque=societe_generale$Banque,
                                        Type=societe_generale$Type,
                                        Adresse=societe_generale$Adresse,
@@ -413,7 +388,7 @@ write.csv(societe_generale,"Société_Générale.csv",row.names = FALSE)
 write.csv(societe_generale_lgt_lat,"Société_Générale_lgt_lat.csv",row.names = FALSE)
 
 
-# CREDIT AGRICOLE
+# BANQUES - CREDIT AGRICOLE ----------------------------------------------------
 
 
 # Avoir le nom d'une ville et la région dans laquelle elle se situe ne suffit pas pour accéder 
@@ -459,14 +434,15 @@ cred_agri <- data.frame(Banque="Credit Agricole",Type="Coopérative",Adresse=tou
 write.csv(cred_agri,"Crédit_Agricole.csv",row.names = FALSE)
 write.csv(credit_agricole, "Crédit_Agricole_lgt_lat.csv", row.names=FALSE)
 
+# CONCATENATION BANQUES  ------------------------------------------------------
 
-# Création d'un data frame regroupant les adresses, longitudes et latitudes de toutes les banques ci-dessus
-
+# Création d'un data frame regroupant les adresses, longitudes et latitudes de 
+# toutes les banques ci-dessus
 data_banque <- rbind(credit_mutuel_lng_lat,
                      Banque_populaire_lgt_lat,
                      Bnp_paribas_lgt_lat,
                      societe_generale_lgt_lat,
                      credit_agricole)
 
-
+# Ecriture de la data frame contenant toutes les banques dans un csv
 write.csv(data_banque,"Coordonnées_Banques.csv",row.names = FALSE)
