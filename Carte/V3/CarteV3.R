@@ -32,7 +32,7 @@ fd_cnew_plot <- fd_cnew%>%
 
 fd_cnew_plot$geometry <- st_cast(fd_cnew_plot$geometry,'MULTIPOLYGON')
 
-
+bdd_zese <- cbind(bdd_zese,fd_cnew_plot$geometry)
 #CONSTRUCTION DE LA CARTE
 #API mapbox
 mapboxToken <- paste("pk.eyJ1IjoiZ3JhbnQyNDk5IiwiYSI6ImNremZ6enYweDJjbjAybm8xejVqN3IwemQifQ.UTVkE6hkSjPESfp-0CPD7Q", collapse="")
