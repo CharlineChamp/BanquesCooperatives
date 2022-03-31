@@ -174,7 +174,6 @@ write.csv(Banque_populaire_lgt_lat,"Banque_Populaire_lgt_lat.csv",row.names = FA
 link_part <- "https://www.moneyvox.fr/pratique/agences/bnp-paribas/"
 
 Adresses <-c()
-
 for(i in 1:95){
   if(nchar(i)==1){
     # Création de l'URL pour le département
@@ -234,12 +233,19 @@ for(i in 1:length(bnp_paribas$Adresse)){
   latitude<-c(latitude,coordonnees$latitude[1])
 }
 
+# On retire les doublons d'adresse
+coord <- data.frame(longitude,latitude)
+
+indice_sans_doublon <- as.integer(row.names(unique(coord)))
+
+bnp_paribas <- bnp_paribas[indice_sans_doublon,]
+
 # Ecriture des longitudes, latitudes et adresses de chaque agence Bnp Paribas dans un data frame
 Bnp_paribas_lgt_lat <- data.frame(Banque=bnp_paribas$Banque,
                                   Type=bnp_paribas$Type,
                                   Adresse=bnp_paribas$Adresse,
-                                  Longitude=longitude,
-                                  Latitude=latitude)
+                                  Longitude=longitude[indice_sans_doublon],
+                                  Latitude=latitude[indice_sans_doublon])
 
 write.csv(bnp_paribas,"Bnp_Paribas.csv",row.names = FALSE)
 write.csv(Bnp_paribas_lgt_lat,"BNP_Paribas_lgt_lat.csv",row.names = FALSE)
@@ -296,13 +302,13 @@ indice_sans_doublon<-as.integer(row.names(sans_doublons))
 
 
 # Ecriture des adresses dans un data frame
-Credit_mutuel_sans_doublon<-data.frame(Banque=rep("Crédit Mutuel",length(indice_sans_doublon)-1),
-                                       Type=rep("Coopérative",length(indice_sans_doublon)-1),
-                                       Adresse=toupper(paste(Crédit_mutuel$Rue[indice_sans_doublon[-76]],
+Credit_mutuel_sans_doublon<-data.frame(Banque=rep("Crédit Mutuel",length(indice_sans_doublon)),
+                                       Type=rep("Coopérative",length(indice_sans_doublon)),
+                                       Adresse=toupper(paste(Crédit_mutuel$Rue[indice_sans_doublon],
                                                              ", ",
-                                                             Crédit_mutuel$Code_postal[indice_sans_doublon[-76]],
+                                                             Crédit_mutuel$Code_postal[indice_sans_doublon],
                                                              ", ",
-                                                             Crédit_mutuel$Ville[indice_sans_doublon[-76]])))
+                                                             Crédit_mutuel$Ville[indice_sans_doublon])))
 
 
 # Correction d'une adresse ne donnant pas de résultat pour obtenir les longitudes et latitudes
@@ -320,12 +326,19 @@ for(i in 1:length(Credit_mutuel_sans_doublon$Adresse)){
   latitude<-c(latitude,coordonnees$latitude[1])
 }
 
+# On retire les doublons d'adresse
+coord <- data.frame(longitude,latitude)
+
+indice_sans_doublon <- as.integer(row.names(unique(coord)))
+
+Credit_mutuel_sans_doublon <- Credit_mutuel_sans_doublon[indice_sans_doublon,]
+
 # Ecriture des longitudes, latitudes et adresses de chaque banque du Crédit Mutuel dans un data frame
 credit_mutuel_lng_lat<-data.frame(Banque=Credit_mutuel_sans_doublon$Banque,
                                   Type=Credit_mutuel_sans_doublon$Type,
                                   Adresse=Credit_mutuel_sans_doublon$Adresse,
-                                  Longitude=longitude,
-                                  Latitude=latitude)
+                                  Longitude=longitude[indice_sans_doublon],
+                                  Latitude=latitude[indice_sans_doublon])
 
 write.csv(Credit_mutuel_sans_doublon,"Crédit_Mutuel.csv",row.names = FALSE)
 write.csv(credit_mutuel_lng_lat,"Crédit_Mutuel_lgt_lat.csv",row.names = FALSE)
