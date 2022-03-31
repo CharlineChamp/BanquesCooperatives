@@ -387,12 +387,20 @@ for(i in 1:length(societe_generale$Adresse)){
   latitude<-c(latitude,coordonnees$latitude[1])
 }
 
+# On retire les doublons d'adresse
+coord <- data.frame(longitude,latitude)
+
+indice_sans_doublon <- as.integer(row.names(unique(coord)))
+
+societe_generale <- societe_generale[indice_sans_doublon,]
+
+
 # Ecriture des longitudes, latitudes et adresses de chaque agence de la Société Générale dans un data frame
 societe_generale_lgt_lat <- data.frame(Banque=societe_generale$Banque,
                                        Type=societe_generale$Type,
                                        Adresse=societe_generale$Adresse,
-                                       Longitude=longitude,
-                                       Latitude=latitude)
+                                       Longitude=longitude[indice_sans_doublon],
+                                       Latitude=latitude[indice_sans_doublon])
 
 write.csv(societe_generale,"Société_Générale.csv",row.names = FALSE)
 write.csv(societe_generale_lgt_lat,"Société_Générale_lgt_lat.csv",row.names = FALSE)
