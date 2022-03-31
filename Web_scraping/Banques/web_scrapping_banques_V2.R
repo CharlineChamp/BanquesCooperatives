@@ -270,14 +270,12 @@ for (i in 1:length(departement)){
   page <- read_html(link)
   
   # Récupération des villes du département
-  
   villes <- page %>% html_nodes(".nowrap") %>% html_text()
   villesID <- IDville(villes)
   
   for (j in 1:length(villesID)){
     
     # Récupération des adresses (rue, code postal et ville) autour de chaque ville séléctionnée
-    
     link <- paste0("https://www.creditmutuel.fr/fr/banques/contact/trouver-une-agence/SearchList.aspx?sub=true&type=branch&loca=",villesID[j])
     page <- read_html(link)
     adresses <- page %>% html_nodes("em span") %>% html_text()
@@ -403,7 +401,6 @@ write.csv(societe_generale_lgt_lat,"Société_Générale_lgt_lat.csv",row.names 
 
 # BANQUES - CREDIT AGRICOLE ----------------------------------------------------
 
-
 # Avoir le nom d'une ville et la région dans laquelle elle se situe ne suffit pas pour accéder 
 # aux agences au sein de cette ville : le code postal de la ville est également compris dans l'URL
 # ex : https://www.credit-agricole.fr/particulier/agence/alpes-provence/ville/aix-en-provence-13090.html
@@ -414,12 +411,9 @@ codes_postaux <- codes_postaux %>% select(c(Nom_commune, Code_postal))
 
 codes_postaux$Code_postal <- as.character(codes_postaux$Code_postal)
 
-
 codes_postaux$Code_postal <- unlist(lapply(codes_postaux$Code_postal, FUN = formatage_code_postal))
 
-
 agences <- get_all_adresses()
-
 
 agences[which(agences=="PLACE LOU CAHQUE DIT (PORT)  40130 CAPBRETON")] <- "PLACE LOU CHAQUE DIT (PORT)  40130 CAPBRETON"
 agences[which(agences=="Centre Commercial de Riom Sud Avenue de Clermont  63200 MENETROL")] <- "83 AVENUE DE CLERMONT 63200 RIOM"
