@@ -385,7 +385,6 @@ for(i in 1:length(societe_generale$Adresse)){
   coordonnees <- geocode(adr)
   longitude<-c(longitude,coordonnees$longitude[1])
   latitude<-c(latitude,coordonnees$latitude[1])
-  
 }
 
 # Ecriture des longitudes, latitudes et adresses de chaque agence de la Société Générale dans un data frame
