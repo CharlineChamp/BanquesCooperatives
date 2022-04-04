@@ -132,6 +132,9 @@ liste_adresses[which(liste_adresses=="Ctre Cial Porte de Normandie78200 BUCHELAY
 liste_adresses[which(liste_adresses=="1060, route de l'Aerodrome-Zone AGROPARCRes. l'Esplanade Bat B84140 MONTFAVET")]<-"1060, Route de l'Aerodrome-Zone Agroparc Res. l'Esplanade, Bat B, 84140"
 liste_adresses[which(liste_adresses=="146-146 bis, rue du Point du Jour3 bis, pl Jules Guesde92100 BOULOGNE BILLANCOURT")]<-"47 Rue du Point du Jour, 92100 Boulogne-Billancourt"
 liste_adresses[which(liste_adresses=="entrée en face du ConforamaCtre Cial CORA - RN 1660740 ST MAXIMIN")]<-"282 Av. Gabriel Péri, 83470 Saint-Maximin-la-Sainte-Baume"
+liste_adresses[which(liste_adresses=="3 A, RUE DE BESANÇON25300 DOUBS")]<-"3 A Rue de Besançon 25300 Doubs"
+liste_adresses[which(liste_adresses=="211 BIS, AVE DE VERSAILLES75016 PARIS 16")]<-"211 bis Av. de Versailles 75016 Paris"
+
 
 # Création d'un data frame contenant les adresses modifiées
 banque_populaire <- data.frame(Banque=rep("Banque Populaire",length(liste_adresses)),
@@ -141,14 +144,12 @@ banque_populaire <- data.frame(Banque=rep("Banque Populaire",length(liste_adress
 # Récupération des longitudes et latitudes de chaque adresse
 longitude <- c()
 latitude <- c()
-liste_i <- c()
 
 for(i in 1:length(banque_populaire$Adresse)){
   adr<-banque_populaire$Adresse[i]
   coordonnees <- geocode(adr)
   longitude<-c(longitude,coordonnees$longitude[1])
   latitude<-c(latitude,coordonnees$latitude[1])
-  if(dim(coordonnees)[1]==0){liste_i<-c(liste_i,i)}
 }
 
 # On retire les doublons d'adresse
