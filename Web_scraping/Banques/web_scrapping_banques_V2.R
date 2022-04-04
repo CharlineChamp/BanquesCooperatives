@@ -141,12 +141,14 @@ banque_populaire <- data.frame(Banque=rep("Banque Populaire",length(liste_adress
 # Récupération des longitudes et latitudes de chaque adresse
 longitude <- c()
 latitude <- c()
+liste_i <- c()
 
 for(i in 1:length(banque_populaire$Adresse)){
   adr<-banque_populaire$Adresse[i]
   coordonnees <- geocode(adr)
   longitude<-c(longitude,coordonnees$longitude[1])
   latitude<-c(latitude,coordonnees$latitude[1])
+  if(dim(coordonnees)[1]==0){liste_i<-c(liste_i,i)}
 }
 
 # On retire les doublons d'adresse
