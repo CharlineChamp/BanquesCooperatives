@@ -250,6 +250,46 @@ Bnp_paribas_lgt_lat <- data.frame(Banque=bnp_paribas$Banque,
 write.csv(bnp_paribas,"Bnp_Paribas.csv",row.names = FALSE)
 write.csv(Bnp_paribas_lgt_lat,"BNP_Paribas_lgt_lat.csv",row.names = FALSE)
 
+# BANQUES - CREDIT AGRICOLE ----------------------------------------------------
+
+# Avoir le nom d'une ville et la région dans laquelle elle se situe ne suffit pas pour accéder 
+# aux agences au sein de cette ville : le code postal de la ville est également compris dans l'URL
+# ex : https://www.credit-agricole.fr/particulier/agence/alpes-provence/ville/aix-en-provence-13090.html
+
+# Utilisation de la base officielle des codes postaux, réalisée par la Poste
+codes_postaux <- read.csv("laposte_hexasmal.csv", sep=";")
+codes_postaux <- codes_postaux %>% select(c(Nom_commune, Code_postal))
+codes_postaux$Code_postal <- as.character(codes_postaux$Code_postal)
+codes_postaux$Code_postal <- unlist(lapply(codes_postaux$Code_postal, FUN = formatage_code_postal))
+
+agences <- get_all_adresses()
+agences <- c(agences,"64 Rue de Passy 75116 Paris","16 Avenue George V 75008 Paris")
+agences[which(agences=="PLACE LOU CAHQUE DIT (PORT)  40130 CAPBRETON")] <- "PLACE LOU CHAQUE DIT (PORT)  40130 CAPBRETON"
+agences[which(agences=="Centre Commercial de Riom Sud Avenue de Clermont  63200 MENETROL")] <- "83 AVENUE DE CLERMONT 63200 RIOM"
+agences[which(agences=="FROMENTEAU - ROUTE NATIONALE 7  03003 MOULINS")] <- "FROMENTEAU - ROUTE NATIONALE 7  03000 MOULINS"
+agences[which(agences=="Avenue du Grand Large Le Moulin des Chênes Verts  17137 Nieul-sur-Mer")] <- "30 AVENUE DU GRAND LARGE, 17137 NIEUL-SUR-MER"
+agences[which(agences=="PARC DES BALLIUS RUE DES ECOLES  34670 BAILLARGUES")] <- "410 RUE DES ECOLES 34670 BAILLARGUES"
+agences[which(agences=="Complexe du Mont Bernard - Route de Suippes  51000 CHALONS-EN-CHAMPAGNE")] <- "CHBRE AGRICULTURE MARNE BP 525, ROUTE DE SUIPPES, 51009 CHALONS-EN-CHAMPAGNE"
+agences[which(agences=="Immeuble l'Eperon B 1  38860 LES DEUX ALPES")] <- "70 AV. DE LA MUZELLE, 38860 LES DEUX ALPES"
+agences[which(agences=="Centre Commercial Station des Orres  05200 Les Orres")] <- "11 Pl. des Étoiles, 05200 Les Orres"
+agences[which(agences=="IMMEUBLE LE ROND POINT  06340 LA TRINITE")] <- "Bd François Suarez, 06340 La Trinité"
+agences[which(agences=="2 PLACE DU MARÉCHAL LECLERC  88510 ELOYES")] <- "2 Rue du Perreuil 88510 Éloyes"
+
+longitudes <- lapply(agences, FUN=get_long)
+latitudes <- lapply(agences, FUN=get_lat)
+longitudes <- unlist(longitudes)
+latitudes <- unlist(latitudes)
+
+credit_agricole <- data.frame(agences, longitudes, latitudes)
+credit_agricole <- cbind(data.frame(banque="Crédit Agricole", type="Coopérative"), credit_agricole)
+colnames(credit_agricole) <- c('Banque','Type','Adresse','Longitude','Latitude')
+credit_agricole$Adresse <- toupper(credit_agricole$Adresse)
+
+cred_agri <- data.frame(Banque="Credit Agricole",Type="Coopérative",Adresse=toupper(agences))
+
+write.csv(cred_agri,"Crédit_Agricole.csv",row.names = FALSE)
+write.csv(credit_agricole, "Crédit_Agricole_lgt_lat.csv", row.names=FALSE)
+
 # BANQUES - CREDIT MUTUEL-------------------------------------------------------
 
 # Récupération des départements où il a des agences
@@ -338,6 +378,47 @@ credit_mutuel_lng_lat<-data.frame(Banque=Credit_mutuel_sans_doublon$Banque,
                                   Longitude=longitude[indice_sans_doublon],
                                   Latitude=latitude[indice_sans_doublon])
 
+# CREDIT MUTUEL BRETAGNE
+
+link <- "https://www.cmb.fr/reseau-bancaire-cooperatif/web/recherche-agence-credit-mutuel-de-bretagne"
+page <- read_html(link)
+departement <- page %>% html_nodes(".cta_list_item") %>% html_text()
+
+departement <- trim_string(departement)
+departement <- substr(departement,1,nchar(departement)-5)
+departement <- stri_trans_general(departement, "Latin-ASCII")
+departement <- tolower(departement)
+departement <- str_replace_all(departement,"'"," ")
+departement <- str_replace_all(departement," ","-")
+
+
+adresses <- c()
+
+for(i in departement){
+  link_part <- paste0(link,"/",i)  
+  page <- read_html(link_part)
+  Villes_code <- page %>% html_nodes("a div") %>% html_text()
+  Villes_code <- Villes_code[-c(1,2,3,4)]
+  Villes_code <- trim_string(Villes_code)
+  adresses <- c(adresses,Villes_code)
+}
+
+adresses <- str_replace_all(adresses," -","")
+
+longitude <-c()
+latitude<-c()
+
+for(i in 1:length(adresses)){
+  adr<-adresses[i]
+  coordonnees <- geocode(adr)
+  longitude<-c(longitude,coordonnees$longitude[1])
+  latitude<-c(latitude,coordonnees$latitude[1])
+  
+}
+
+Credit_mutuel_bretagne <- data.frame(Banque="Crédit Mutuel",Type="Coopérative", Adresse=adresses,Longitude=longitude,Latitude=latitude)
+credit_mutuel_lng_lat <- rbind(Credit_mutuel_bretagne,credit_mutuel_lng_lat)
+
 write.csv(Credit_mutuel_sans_doublon,"Crédit_Mutuel.csv",row.names = FALSE)
 write.csv(credit_mutuel_lng_lat,"Crédit_Mutuel_lgt_lat.csv",row.names = FALSE)
 
@@ -404,97 +485,15 @@ societe_generale_lgt_lat <- data.frame(Banque=societe_generale$Banque,
 write.csv(societe_generale,"Société_Générale.csv",row.names = FALSE)
 write.csv(societe_generale_lgt_lat,"Société_Générale_lgt_lat.csv",row.names = FALSE)
 
-
-# BANQUES - CREDIT AGRICOLE ----------------------------------------------------
-
-# Avoir le nom d'une ville et la région dans laquelle elle se situe ne suffit pas pour accéder 
-# aux agences au sein de cette ville : le code postal de la ville est également compris dans l'URL
-# ex : https://www.credit-agricole.fr/particulier/agence/alpes-provence/ville/aix-en-provence-13090.html
-
-# Utilisation de la base officielle des codes postaux, réalisée par la Poste
-codes_postaux <- read.csv("laposte_hexasmal.csv", sep=";")
-codes_postaux <- codes_postaux %>% select(c(Nom_commune, Code_postal))
-codes_postaux$Code_postal <- as.character(codes_postaux$Code_postal)
-codes_postaux$Code_postal <- unlist(lapply(codes_postaux$Code_postal, FUN = formatage_code_postal))
-
-agences <- get_all_adresses()
-agences <- c(agences,"64 Rue de Passy 75116 Paris","16 Avenue George V 75008 Paris")
-agences[which(agences=="PLACE LOU CAHQUE DIT (PORT)  40130 CAPBRETON")] <- "PLACE LOU CHAQUE DIT (PORT)  40130 CAPBRETON"
-agences[which(agences=="Centre Commercial de Riom Sud Avenue de Clermont  63200 MENETROL")] <- "83 AVENUE DE CLERMONT 63200 RIOM"
-agences[which(agences=="FROMENTEAU - ROUTE NATIONALE 7  03003 MOULINS")] <- "FROMENTEAU - ROUTE NATIONALE 7  03000 MOULINS"
-agences[which(agences=="Avenue du Grand Large Le Moulin des Chênes Verts  17137 Nieul-sur-Mer")] <- "30 AVENUE DU GRAND LARGE, 17137 NIEUL-SUR-MER"
-agences[which(agences=="PARC DES BALLIUS RUE DES ECOLES  34670 BAILLARGUES")] <- "410 RUE DES ECOLES 34670 BAILLARGUES"
-agences[which(agences=="Complexe du Mont Bernard - Route de Suippes  51000 CHALONS-EN-CHAMPAGNE")] <- "CHBRE AGRICULTURE MARNE BP 525, ROUTE DE SUIPPES, 51009 CHALONS-EN-CHAMPAGNE"
-agences[which(agences=="Immeuble l'Eperon B 1  38860 LES DEUX ALPES")] <- "70 AV. DE LA MUZELLE, 38860 LES DEUX ALPES"
-agences[which(agences=="Centre Commercial Station des Orres  05200 Les Orres")] <- "11 Pl. des Étoiles, 05200 Les Orres"
-agences[which(agences=="IMMEUBLE LE ROND POINT  06340 LA TRINITE")] <- "Bd François Suarez, 06340 La Trinité"
-agences[which(agences=="2 PLACE DU MARÉCHAL LECLERC  88510 ELOYES")] <- "2 Rue du Perreuil 88510 Éloyes"
-
-longitudes <- lapply(agences, FUN=get_long)
-latitudes <- lapply(agences, FUN=get_lat)
-longitudes <- unlist(longitudes)
-latitudes <- unlist(latitudes)
-
-credit_agricole <- data.frame(agences, longitudes, latitudes)
-credit_agricole <- cbind(data.frame(banque="Crédit Agricole", type="Coopérative"), credit_agricole)
-colnames(credit_agricole) <- c('Banque','Type','Adresse','Longitude','Latitude')
-credit_agricole$Adresse <- toupper(credit_agricole$Adresse)
-
-cred_agri <- data.frame(Banque="Credit Agricole",Type="Coopérative",Adresse=toupper(agences))
-
-# ENLEVER DOUBLON
-write.csv(cred_agri,"Crédit_Agricole.csv",row.names = FALSE)
-write.csv(credit_agricole, "Crédit_Agricole_lgt_lat.csv", row.names=FALSE)
-
-# BANQUES - CREDIT MUTUEL BRETAGNE ---------------------------------------------
-
-link <- "https://www.cmb.fr/reseau-bancaire-cooperatif/web/recherche-agence-credit-mutuel-de-bretagne"
-page <- read_html(link)
-departement <- page %>% html_nodes(".cta_list_item") %>% html_text()
-
-departement <- trim_string(departement)
-departement <- substr(departement,1,nchar(departement)-5)
-departement <- stri_trans_general(departement, "Latin-ASCII")
-departement <- tolower(departement)
-departement <- str_replace_all(departement,"'"," ")
-departement <- str_replace_all(departement," ","-")
-
-
-adresses <- c()
-
-for(i in departement){
-  link_part <- paste0(link,"/",i)  
-  page <- read_html(link_part)
-  Villes_code <- page %>% html_nodes("a div") %>% html_text()
-  Villes_code <- Villes_code[-c(1,2,3,4)]
-  Villes_code <- trim_string(Villes_code)
-  adresses <- c(adresses,Villes_code)
-}
-
-adresses <- str_replace_all(adresses," -","")
-
-longitude <-c()
-latitude<-c()
-
-for(i in 1:length(adresses)){
-  adr<-adresses[i]
-  coordonnees <- geocode(adr)
-  longitude<-c(longitude,coordonnees$longitude[1])
-  latitude<-c(latitude,coordonnees$latitude[1])
-  
-}
-
-Credit_mutuel_bretagne <- data.frame(Banque="Crédit Mutuel",Type="Coopérative", Adresse=adresses,Longitude=longitude,Latitude=latitude)
-
 # CONCATENATION BANQUES  ------------------------------------------------------
 
 # Création d'un data frame regroupant les adresses, longitudes et latitudes de 
 # toutes les banques ci-dessus
-data_banque <- rbind(credit_mutuel_lng_lat,
-                     Banque_populaire_lgt_lat,
+data_banque <- rbind(Banque_populaire_lgt_lat,
                      Bnp_paribas_lgt_lat,
-                     societe_generale_lgt_lat,
-                     credit_agricole)
+                     credit_agricole,
+                     credit_mutuel_lng_lat,
+                     societe_generale_lgt_lat)
 
 # Ecriture de la data frame contenant toutes les banques dans un csv
 write.csv(data_banque,"Coordonnées_Banques.csv",row.names = FALSE)
