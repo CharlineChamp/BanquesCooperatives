@@ -166,7 +166,6 @@ Banque_populaire_lgt_lat <- data.frame(Banque=banque_populaire$Banque,
                                        Longitude=longitude[indice_sans_doublon],
                                        Latitude=latitude[indice_sans_doublon])
 
-write.csv(banque_populaire,"Banque_Populaire.csv",row.names = FALSE)
 write.csv(Banque_populaire_lgt_lat,"Banque_Populaire_lgt_lat.csv",row.names = FALSE)
 
 
