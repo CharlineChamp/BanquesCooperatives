@@ -238,16 +238,6 @@ get_all_adresses <- function() {
   return(agences)
 }
 
-# Retourne la longitude d'une adresse
-get_long <- function(adr) {
-  geocode(adr)[1,'longitude']
-}
-
-# Retourne la lattitude d'une adresse
-get_lat <- function(adr) {
-  geocode(adr)[1,'latitude']
-}
-
 # Avoir le nom d'une ville et la région dans laquelle elle se situe ne suffit pas pour accéder 
 # aux agences au sein de cette ville : le code postal de la ville est également compris dans l'URL
 # ex : https://www.credit-agricole.fr/particulier/agence/alpes-provence/ville/aix-en-provence-13090.html
@@ -270,13 +260,21 @@ agences[which(agences=="Immeuble l'Eperon B 1  38860 LES DEUX ALPES")] <- "70 AV
 agences[which(agences=="Centre Commercial Station des Orres  05200 Les Orres")] <- "11 Pl. des Étoiles, 05200 Les Orres"
 agences[which(agences=="IMMEUBLE LE ROND POINT  06340 LA TRINITE")] <- "Bd François Suarez, 06340 La Trinité"
 agences[which(agences=="2 PLACE DU MARÉCHAL LECLERC  88510 ELOYES")] <- "2 Rue du Perreuil 88510 Éloyes"
+agences <- unique(agences)
 
-longitudes <- lapply(agences, FUN=get_long)
-latitudes <- lapply(agences, FUN=get_lat)
-longitudes <- unlist(longitudes)
-latitudes <- unlist(latitudes)
+#long_lat <- lapply(agences, FUN=get_long_lat)
+#latitudes <- lapply(agences, FUN=get_lat)
+#long_lat <- unlist(long_lat)
+#latitudes <- unlist(latitudes)
 
-credit_agricole <- data.frame(agences, longitudes, latitudes)
+for(i in 1:length(agences)){
+  adr <- agences[i]
+  coordonnees <- geocode(adr)
+  longitude<-c(longitude,coordonnees$longitude[1])
+  latitude<-c(latitude,coordonnees$latitude[1])
+}
+
+credit_agricole <- data.frame(agences, longitudes_latitudes)
 credit_agricole <- cbind(data.frame(banque="Crédit Agricole", type="Coopérative"), credit_agricole)
 colnames(credit_agricole) <- c('Banque','Type','Adresse','Longitude','Latitude')
 credit_agricole$Adresse <- toupper(credit_agricole$Adresse)
