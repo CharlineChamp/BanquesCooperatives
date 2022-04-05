@@ -23,17 +23,18 @@ fd <- fd_cnew[3]
 
 #Fusion pour obtenir des zones d'emplois
 fd_cnew_plot <- fd_cnew%>% 
-    group_by(ze2020)%>% 
-    summarize()
+                group_by(ze2020)%>% 
+                summarize()
 
 plot(fd_cnew_plot)
 
 fd_cnew_plot$geometry <- st_cast(fd_cnew_plot$geometry,'MULTIPOLYGON')
 
 bdd_zese <- cbind(bdd_zese,fd_cnew_plot$geometry)
+
 #ggplot
 #Construction de la map en ggplot
-banque <- dplyr::filter(banque,Banque=="Credit Agricole")
+
 map <- ggplot()+
        geom_sf(data=bdd_zese, aes(geometry=geometry),color='black',size=.2)+
        scale_fill_viridis_c(option = 'E')+

@@ -1,0 +1,26 @@
+# LIBRAIRIES
+library(sf)
+library(dplyr)
+
+# CHARGEMENT DES DONNÉES
+fd_c <- st_read('Carte/shapefile/fond_ZE2020_geo20.shp')
+bdd_zese <- readxl::read_xlsx('Données/bdd_social_ze2020.xlsx')
+
+# NETTOYAGE DES DONNÉES
+
+# On retire les départements d'outre mer
+fd_c <- fd_c[-l,]
+
+# Fusion pour obtenir des zones d'emplois
+fd_c <- fd_c%>% 
+        group_by(ze2020)%>% 
+        summarize()
+
+# Uniformisation en MUTLTIPOLYGON
+fd_c$geometry <- st_cast(fd_c$geometry,'MULTIPOLYGON')
+
+# Concaténation des geometry sur la bdd principale
+bdd_zese <- cbind(bdd_zese,fd_c$geometry)
+
+st_write(bdd_zese,'Données/ze2020/bdd_polygon_ze2020.shp')
+
