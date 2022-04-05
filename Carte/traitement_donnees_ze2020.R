@@ -8,6 +8,13 @@ bdd_zese <- readxl::read_xlsx('Données/bdd_social_ze2020.xlsx')
 
 # NETTOYAGE DES DONNÉES
 
+l <- vector(length = 0)
+# Indices des codes correspondants aux départements d'outre mer
+indices <- c('971','972','973','974','976')
+for(i in indices){
+  l <- c(l,grep(i, fd_c$code, ignore.case = TRUE))
+}
+
 # On retire les départements d'outre mer
 fd_c <- fd_c[-l,]
 
