@@ -1,47 +1,20 @@
-library(sf)
-library(dplyr)
+# LIBRAIRIES
 library(plotly)
-library(ggplot2)
-library(viridis)
 
-#PLOTLY
-#Construction de la carte avec plotly
+# CHARGEMENT DES DONNEES
+banque <- read.csv('Données/bdd_coordonnees_banques2022.csv')
+ze <- st_read('Données/ze2020/bdd_polygon_ze2020.shp')
 
-#CHARGEMENT DES DONNEES
-#setwd("BanquesCooperatives/Carte")
-fd_c <- st_read('shapefile/fond_ZE2020_geo20.shp')
-bdd_zese <- readxl::read_excel('../Données/bdd_social_ze2020.xlsx')
-banque <- read.csv("../Données/Coordonnées_banques.csv")
-
-#NETTOYAGE/UNIFORMISATION DES DONNEES
-l <- vector(length = 0)
-#Indices des codes correspondants aux départements d'outre mer
-indices <- c('971','972','973','974','976')
-for(i in indices){
-  l <- c(l,grep(i, fd_c$code, ignore.case = TRUE))
-}
-
-#On retire les départements d'outre mer
-fd_cnew <- fd_c[-l,]
-fd <- fd_cnew[3]
-
-#Fusion pour obtenir des zones d'emplois
-fd_cnew_plot <- fd_cnew%>% 
-                group_by(ze2020)%>% 
-                dplyr::summarize()
-
-fd_cnew_plot$geometry <- st_cast(fd_cnew_plot$geometry,'MULTIPOLYGON')
-
-bdd_zese <- cbind(bdd_zese,fd_cnew_plot$geometry)
-#CONSTRUCTION DE LA CARTE
-#API mapbox
+# CONSTRUCTION DE LA CARTE
+# API mapbox
 mapboxToken <- paste("pk.eyJ1IjoiZ3JhbnQyNDk5IiwiYSI6ImNremZ6enYweDJjbjAybm8xejVqN3IwemQifQ.UTVkE6hkSjPESfp-0CPD7Q", collapse="")
 Sys.setenv("MAPBOX_TOKEN" = mapboxToken)
 
-#Tracé de la France découpée en zone d'emplois
-fig1 <- plot_mapbox(data = polygon) %>% layout(mapbox = list(style = 'dark'))
+# Tracé de la France découpée en zone d'emplois
+fig1 <- plot_mapbox(data = ze, split=~Z.202) %>% layout(mapbox = list(style = 'dark'))
 fig1
-#Positionnement des banques sur la carte
+
+# Positionnement des banques sur la carte
 fig <- plot_mapbox(data = banque,lon=~Longitude,lat=~Latitude,
                    split=~Banque,
                    size=1,
@@ -60,16 +33,7 @@ fig <- fig %>% layout(title = 'Banques Coopératives',
 fig <- fig %>% config(mapboxAccessToken = Sys.getenv("MAPBOX_TOKEN"))
 
 fig
-subplot(fig,fig1)
-test <- st_as_sf(sg)
 
-polygon <- banque %>%
-           st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326) %>%
-           summarise(geometry = st_combine(geometry)) %>%
-           st_cast("POINT")
-
-
-
-final_df=merge(fd_cnew_plot,banque,all.x = TRUE,all.y = TRUE)
+#subplot(fig,fig1)
 
 
