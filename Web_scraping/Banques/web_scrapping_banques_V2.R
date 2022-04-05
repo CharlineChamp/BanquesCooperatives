@@ -262,16 +262,16 @@ agences[which(agences=="IMMEUBLE LE ROND POINT  06340 LA TRINITE")] <- "Bd Fran�
 agences[which(agences=="2 PLACE DU MARÉCHAL LECLERC  88510 ELOYES")] <- "2 Rue du Perreuil 88510 Éloyes"
 agences <- unique(agences)
 
-#long_lat <- lapply(agences, FUN=get_long_lat)
-#latitudes <- lapply(agences, FUN=get_lat)
-#long_lat <- unlist(long_lat)
-#latitudes <- unlist(latitudes)
+# Récupération des longitudes et latitudes de chaque adresse
+longitude <- c()
+latitude <- c()
 
 for(i in 1:length(agences)){
   adr <- agences[i]
   coordonnees <- geocode(adr)
   longitude<-c(longitude,coordonnees$longitude[1])
   latitude<-c(latitude,coordonnees$latitude[1])
+  print(i)
 }
 
 credit_agricole <- data.frame(agences, longitudes_latitudes)
