@@ -132,9 +132,8 @@ liste_adresses[which(liste_adresses=="Ctre Cial Porte de Normandie78200 BUCHELAY
 liste_adresses[which(liste_adresses=="1060, route de l'Aerodrome-Zone AGROPARCRes. l'Esplanade Bat B84140 MONTFAVET")]<-"1060, Route de l'Aerodrome-Zone Agroparc Res. l'Esplanade, Bat B, 84140"
 liste_adresses[which(liste_adresses=="146-146 bis, rue du Point du Jour3 bis, pl Jules Guesde92100 BOULOGNE BILLANCOURT")]<-"47 Rue du Point du Jour, 92100 Boulogne-Billancourt"
 liste_adresses[which(liste_adresses=="entrée en face du ConforamaCtre Cial CORA - RN 1660740 ST MAXIMIN")]<-"282 Av. Gabriel Péri, 83470 Saint-Maximin-la-Sainte-Baume"
-liste_adresses[which(liste_adresses=="3 A, RUE DE BESANÇON25300 DOUBS")]<-"3 A Rue de Besançon, 25300 Doubs"
-liste_adresses[which(liste_adresses=="211 BIS, AVE DE VERSAILLES75016 PARIS 16")]<-"211 Bis Av. de Versailles, 75016 Paris"
-
+liste_adresses[which(liste_adresses=="3 A, rue de Besançon25300 DOUBS")]<-"3 A Rue de Besançon, 25300 Doubs"
+liste_adresses[which(liste_adresses=="211 bis, ave de Versailles75016 PARIS 16")]<-"211 Bis Av. de Versailles, 75016 Paris"
 
 # Création d'un data frame contenant les adresses modifiées
 banque_populaire <- data.frame(Banque=rep("Banque Populaire",length(liste_adresses)),
@@ -166,11 +165,10 @@ Banque_populaire_lgt_lat <- data.frame(Banque=banque_populaire$Banque,
                                        Longitude=longitude[indice_sans_doublon],
                                        Latitude=latitude[indice_sans_doublon])
 
-write.csv(Banque_populaire_lgt_lat,"Banque_Populaire_lgt_lat.csv",row.names = FALSE)
+write.csv(Banque_populaire_lgt_lat,"Données/Banques/banque_populaire.csv",row.names = FALSE)
 
 
 # BANQUES - BNP PARIBAS --------------------------------------------------------
-
 
 # Récupération des adresses des agences Bnp Paribas
 link_part <- "https://www.moneyvox.fr/pratique/agences/bnp-paribas/"
@@ -205,7 +203,6 @@ for(i in 1:95){
   }
 }
 
-
 # Correction des adresses ne donnant pas de résultats pour obtenir les longitudes et latitudes
 Adresses[which(Adresses=="1160, Route de Grasse / Riviera Park , 06600 Antibes")] <- "1160 Rte de Grasse, 06600 Antibes"
 Adresses[which(Adresses=="14, Avenue du Marechal Joffre , 06160 Juan-les-Pins" )] <- "14 Av. Maréchal Joffre, 06160 Antibes"
@@ -218,9 +215,8 @@ Adresses[which(Adresses=="115-117 Avenue du Bac , 94210 La Varenne-Saint-Hilaire
 Adresses[which(Adresses=="32, B Avenue Du Bac , 94210 La Varenne-Saint-Hilaire")] <- "32bis Avenue du Bac 94210 Saint-Maur-des-Fossés"
 Adresses[which(Adresses=="60, Rue De La Tour - ZAC Des Verries , 34980 Saint-Clément-de-Rivière")] <- "ZAC LES Verries, 60 Rue de la Tour, 34980 Saint-Gély-du-Fesc"
 
-
 # Création d'un data frame contenant les adresses modifiées
-bnp_paribas <- data.frame(Banque=rep("Bnp Paribas",length(Adresses)),
+bnp_paribas <- data.frame(Banque=rep("BNP Paribas",length(Adresses)),
                           Type=rep("Lucrative",length(Adresses)),
                           Adresse=toupper(Adresses))
 
@@ -249,8 +245,7 @@ Bnp_paribas_lgt_lat <- data.frame(Banque=bnp_paribas$Banque,
                                   Longitude=longitude[indice_sans_doublon],
                                   Latitude=latitude[indice_sans_doublon])
 
-write.csv(bnp_paribas,"Bnp_Paribas.csv",row.names = FALSE)
-write.csv(Bnp_paribas_lgt_lat,"BNP_Paribas_lgt_lat.csv",row.names = FALSE)
+write.csv(Bnp_paribas_lgt_lat,"Données/Banques/bnp_paribas.csv",row.names = FALSE)
 
 # BANQUES - CREDIT AGRICOLE ----------------------------------------------------
 
@@ -259,7 +254,7 @@ write.csv(Bnp_paribas_lgt_lat,"BNP_Paribas_lgt_lat.csv",row.names = FALSE)
 # ex : https://www.credit-agricole.fr/particulier/agence/alpes-provence/ville/aix-en-provence-13090.html
 
 # Utilisation de la base officielle des codes postaux, réalisée par la Poste
-codes_postaux <- read.csv("laposte_hexasmal.csv", sep=";")
+codes_postaux <- read.csv("Web_scraping/Banques/laposte_hexasmal.csv", sep=";")
 codes_postaux <- codes_postaux %>% select(c(Nom_commune, Code_postal))
 codes_postaux$Code_postal <- as.character(codes_postaux$Code_postal)
 codes_postaux$Code_postal <- unlist(lapply(codes_postaux$Code_postal, FUN = formatage_code_postal))
@@ -287,10 +282,9 @@ credit_agricole <- cbind(data.frame(banque="Crédit Agricole", type="Coopérativ
 colnames(credit_agricole) <- c('Banque','Type','Adresse','Longitude','Latitude')
 credit_agricole$Adresse <- toupper(credit_agricole$Adresse)
 
-cred_agri <- data.frame(Banque="Credit Agricole",Type="Coopérative",Adresse=toupper(agences))
+#cred_agri <- data.frame(Banque="Crédit Agricole",Type="Coopérative",Adresse=toupper(agences))
 
-write.csv(cred_agri,"Crédit_Agricole.csv",row.names = FALSE)
-write.csv(credit_agricole, "Crédit_Agricole_lgt_lat.csv", row.names=FALSE)
+write.csv(credit_agricole, "Données/Banques/credit_agricole.csv", row.names=FALSE)
 
 # BANQUES - CREDIT MUTUEL-------------------------------------------------------
 
@@ -330,7 +324,6 @@ for (i in 1:length(departement)){
       Rue <- c(Rue,adresses[indice_rue])
       Code_postal <- c(Code_postal,adresses[indice_code])
       Ville <- c(Ville,adresses[indice_ville])
-      print('récupération des données en cours...')
     }
   }
 }
@@ -421,8 +414,7 @@ for(i in 1:length(adresses)){
 Credit_mutuel_bretagne <- data.frame(Banque="Crédit Mutuel",Type="Coopérative", Adresse=adresses,Longitude=longitude,Latitude=latitude)
 credit_mutuel_lng_lat <- rbind(Credit_mutuel_bretagne,credit_mutuel_lng_lat)
 
-write.csv(Credit_mutuel_sans_doublon,"Crédit_Mutuel.csv",row.names = FALSE)
-write.csv(credit_mutuel_lng_lat,"Crédit_Mutuel_lgt_lat.csv",row.names = FALSE)
+write.csv(credit_mutuel_lng_lat,"Données/Banques/credit_mutuel.csv",row.names = FALSE)
 
 # BANQUES - SOCIETE GENERALE ---------------------------------------------------
 
@@ -484,8 +476,7 @@ societe_generale_lgt_lat <- data.frame(Banque=societe_generale$Banque,
                                        Longitude=longitude[indice_sans_doublon],
                                        Latitude=latitude[indice_sans_doublon])
 
-write.csv(societe_generale,"Société_Générale.csv",row.names = FALSE)
-write.csv(societe_generale_lgt_lat,"Société_Générale_lgt_lat.csv",row.names = FALSE)
+write.csv(societe_generale_lgt_lat,"Données/Banques/societe_generale.csv",row.names = FALSE)
 
 # CONCATENATION BANQUES  ------------------------------------------------------
 
@@ -498,4 +489,4 @@ data_banque <- rbind(Banque_populaire_lgt_lat,
                      societe_generale_lgt_lat)
 
 # Ecriture de la data frame contenant toutes les banques dans un csv
-write.csv(data_banque,"Coordonnées_Banques.csv",row.names = FALSE)
+write.csv(data_banque,"Données/bdd_coordonnees_banques_2022.csv",row.names = FALSE)
