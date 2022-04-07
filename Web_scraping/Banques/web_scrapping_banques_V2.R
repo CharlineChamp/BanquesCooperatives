@@ -259,10 +259,11 @@ agences[which(agences=="PARC DES BALLIUS RUE DES ECOLES  34670 BAILLARGUES")] <-
 agences[which(agences=="Complexe du Mont Bernard - Route de Suippes  51000 CHALONS-EN-CHAMPAGNE")] <- "CHBRE AGRICULTURE MARNE BP 525, ROUTE DE SUIPPES, 51009 CHALONS-EN-CHAMPAGNE"
 agences[which(agences=="Immeuble l'Eperon B 1  38860 LES DEUX ALPES")] <- "70 AV. DE LA MUZELLE, 38860 LES DEUX ALPES"
 agences[which(agences=="Centre Commercial Station des Orres  05200 Les Orres")] <- "11 Pl. des Étoiles, 05200 Les Orres"
-agences[which(agences=="IMMEUBLE LE ROND POINT  06340 LA TRINITE")] <- "Bd François Suarez, 06340 La Trinité"
 agences[which(agences=="2 PLACE DU MARÉCHAL LECLERC  88510 ELOYES")] <- "2 Rue du Perreuil 88510 Éloyes"
 agences[which(agences=="Parc Tertiaire de Valgora - Bat J  83160 LA VALETTE DU VAR")] <- "Agence Entreprise TOULONNAISE PARC TERTIAIRE DE VALGORA, 83160 La Valette-du-Var"
 agences[which(agences=="Centre commercial la Petite Arche  37100 TOURS")] <- "Av. Gustave Eiffel, 37100 Tours"
+agences[which(agences=="Chemin Départemental N 3, Quartier l'Umede  83560 RIANS")] <- "Quartier Umède 83560, Rians"
+agences[which(agences=="Immeuble le Rond Point  06340 LA TRINITE")] <- "Rdpt des Amis de la Liberté, 06340 La Trinité"
 agences <- unique(agences)
 
 # Récupération des longitudes et latitudes de chaque adresse
@@ -274,6 +275,7 @@ for(i in 1:length(agences)){
   coordonnees <- geocode(adr)
   longitude<-c(longitude,coordonnees$longitude[1])
   latitude<-c(latitude,coordonnees$latitude[1])
+  print(i)
 }
 
 credit_agricole <- data.frame(agences, longitude,latitude)
@@ -422,10 +424,6 @@ Crédit_mutuel_bretagne <- data.frame(adresses)
 Crédit_mutuel_bretagne<-data.frame(Banque=rep("Crédit Mutuel",length(adresses)),
                                        Type=rep("Coopérative",length(adresses)),
                                        Adresse=toupper(adresses))
-
-
-# Correction d'une adresse ne donnant pas de résultat pour obtenir les longitudes et latitudes
-# Crédit_mutuel_bretagne_sans_doublon$Adresse[which(Crédit_mutuel_bretagne_sans_doublon$Adresse=="5 PLACE J DE LATTRE DE TASSIGNY ,  68025 ,  COLMAR")]<-"9 Pl. Jean de Lattre de Tassigny, 68000 Colmar"
 
 # Récupération des longitudes et latitudes pour chaque adresse
 longitude <-c()
