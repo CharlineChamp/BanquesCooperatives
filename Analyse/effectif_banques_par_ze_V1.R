@@ -2,10 +2,10 @@ library(sp)
 library(readr)
 library(dplyr)
 
-bdd_social_ze2020 <- read_excel("bdd_social_ze2020.xlsx")
-bdd_social_ze2020 <- cbind(bdd_social_ze2020, fd_cnew_plot$geometry)
-banque <- read_csv("Coordonnées_Banques.csv")
-banque <- unique(banque)
+bdd_social_ze2020 <- readxl::read_xlsx("Données/bdd_social_ze2020.xlsx")
+bdd_social_ze2020 <- cbind(bdd_social_ze2020, fd_c$geometry)
+banque <- readr::read_csv("Données/bdd_coordonnees_banques2022.csv")
+
 
 eff_banq_ze <- function(label_banque){
   df <- data.frame()
@@ -39,7 +39,7 @@ eff_banq_ze <- function(label_banque){
 df_bp <- eff_banq_ze(label_banque = "Banque Populaire")
 
 # Crédit Agricole
-df_ca <- eff_banq_ze(label_banque = "Credit Agricole")
+df_ca <- eff_banq_ze(label_banque = "Crédit Agricole")
 
 # Crédit Mutuelle
 df_cm <- eff_banq_ze(label_banque = "Crédit Mutuel")
@@ -48,7 +48,7 @@ df_cm <- eff_banq_ze(label_banque = "Crédit Mutuel")
 df_sg <- eff_banq_ze(label_banque = "Société Générale")
 
 # BNP Paribas 
-df_bnp <- eff_banq_ze(label_banque = "Bnp Paribas")
+df_bnp <- eff_banq_ze(label_banque = "BNP Paribas")
 
 # Concaténation des data frame
 

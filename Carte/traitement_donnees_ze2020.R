@@ -21,7 +21,7 @@ fd_c <- fd_c[-l,]
 # Fusion pour obtenir des zones d'emplois
 fd_c <- fd_c%>% 
         group_by(ze2020)%>% 
-        summarize()
+        dplyr::summarize()
 
 # Uniformisation en MUTLTIPOLYGON
 fd_c$geometry <- st_cast(fd_c$geometry,'MULTIPOLYGON')
