@@ -28,6 +28,8 @@ fd_c$geometry <- st_cast(fd_c$geometry,'MULTIPOLYGON')
 
 # Concaténation des geometry sur la bdd principale
 bdd_zese <- cbind(bdd_zese,fd_c$geometry)
+bdd_zese <- st_as_sf(bdd_zese)
 
-st_write(bdd_zese,'Données/ze2020/bdd_polygon_ze2020.shp')
+# outfile <- tempfile(fileext = ".shp")
+# st_write(bdd_zese,outfile)
 

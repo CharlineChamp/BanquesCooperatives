@@ -67,12 +67,12 @@ TestBanqWebCV2(label_banque = "BNP Paribas")
 TestBanqWebCV3(label_banque = "BNP Paribas")
 
 # TEST CREDIT AGRICOLE
-#TestBanqWebCV2(label_banque = "Crédit Agricole")
-#TestBanqWebCV3(label_banque = "Crédit Agricole")
+TestBanqWebCV2(label_banque = "Crédit Agricole")
+TestBanqWebCV3(label_banque = "Crédit Agricole")
 
 # TEST CREDIT MUTUEL 
-#TestBanqWebCV2(label_banque = "Crédit Mutuel")
-#TestBanqWebCV3(label_banque = "Crédit Mutuel")
+TestBanqWebCV2(label_banque = "Crédit Mutuel")
+TestBanqWebCV3(label_banque = "Crédit Mutuel")
 
 # TEST SOCIETE GENERALE
 TestBanqWebCV2(label_banque = "Société Générale")

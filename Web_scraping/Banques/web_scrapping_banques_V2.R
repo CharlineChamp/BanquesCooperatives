@@ -452,6 +452,10 @@ Crédit_mutuel_bretagne_lng_lat<-data.frame(Banque=Credit_mutuel_bretagne$Banque
 
 # Concaténation du crédit mutuel et du crédit mutuel Bretagne
 credit_mutuel <- c(credit_mutuel_lng_lat,Crédit_mutuel_bretagne_lng_lat)
+
+# Suppression d'une banque située en outre mer
+credit_mutuel <- credit_mutuel[-77,]
+
 write.csv(credit_mutuel,"Données/Banques/credit_mutuel.csv",row.names = FALSE)
 
 # BANQUES - SOCIETE GENERALE ---------------------------------------------------
