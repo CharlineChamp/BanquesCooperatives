@@ -399,7 +399,7 @@ for(i in departement){
   for (j in Villes_code){
     if(liste[k]==0){
       link_ville <- paste0(link_dep,"/",j)
-      page <- read_html(link_dep)
+      page <- read_html(link_ville)
       adr <- page %>% html_nodes("#ficheAgence .content p+ p") %>% html_text()
       adresses <- c(adresses,adr)
     }else{
@@ -407,7 +407,7 @@ for(i in departement){
       if(j == "rennes---35000-35065-352"){j <-"rennes"}
       if(j == "lanester---566"){j <-"lanester"}
       link_ville <- paste0(link_dep,"/",j)
-      page <- read_html(link_dep)
+      page <- read_html(link_ville)
       adr <- page %>% html_nodes(".mt_md_2 p") %>% html_text()
       adresses <- c(adresses,adr)
     }
