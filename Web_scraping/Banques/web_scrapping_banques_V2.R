@@ -7,6 +7,87 @@ library(plyr)
 library(banR)
 library(stringi)
 
+
+# FONCTIONS --------------------------------------------------------------------
+
+# Fonction qui permet de supprimer les espaces inutiles
+trim_string <- function(string)   gsub("\\s+", " ", gsub("^\\s+|\\s+$", "", string))
+
+# Fonction qui permet de formater une partie de l'adresse URL pour récupérer les adresses des banques du Crédit Mutuel
+IDville <- function(villes) {
+  villes <- trim_string(villes)
+  Ville <- str_replace_all(villes," ","%20")
+}
+
+# Rajoute un 0 au début du code postal si celui-ci ne contient que 4 chiffres
+formatage_code_postal <- function(code_postal) {
+  if (nchar(code_postal) == 4) {
+    code_postal <- paste0("0", code_postal)
+  }
+  return(code_postal)
+}
+
+# Formater le nom des villes
+formatage <- function(str){
+  str <- tolower(str)
+  str <- gsub(" ", "-", str)
+  str <- gsub("'", "-", str)
+  str <- stri_trans_general(str, "Latin-ASCII")
+  return(str)
+}
+
+# Retourne les villes (dans laquelle se situent des  <- ) d'une région donnée
+get_villes <- function(region) {
+  lien_region <- paste0("https://www.credit-agricole.fr/particulier/agence/",region,".html") 
+  page_region <- read_html(lien_region)
+  villes_region <- page_region %>% html_nodes(".js-alphabetList-item") %>% html_text()
+  return(unique(villes_region))
+}
+
+# Retourne le code postal d'une ville
+get_code_postal <- function(ville) {
+  ville <- toupper(gsub("-", " ", ville))
+  code_postal <- codes_postaux[codes_postaux$Nom_commune == ville,]$Code_postal
+  return(code_postal)
+}
+
+# Retourne les adresses des agences se situant au sein d'une ville donnée et d'une région donnée
+get_adresses <- function(ville, region) {
+  code_postal <- get_code_postal(ville)
+  adresses <- c()
+  for (code in code_postal) {
+    lien_ville <- paste0("https://www.credit-agricole.fr/particulier/agence/", region, "/ville/", ville,"-", code, ".html")
+    page_ville <- read_html(lien_ville)
+    adresse <- page_ville %>% html_nodes(".StoreLocatorMap-AgencyAddress") %>% html_text()
+    adresses <- c(adresses, adresse)
+  }
+  return(unique(adresses))
+}
+
+# Retourne l'ensemble des adresses des agences
+get_all_adresses <- function() {
+  lien <- "https://www.credit-agricole.fr/particulier/agence.html"
+  page <- read_html(lien)
+  
+  # liste des régions
+  regions <- page %>% html_nodes(".indexCR-itemLink") %>% html_text()
+  regions <- lapply(regions, FUN = formatage)
+  regions <- regions[regions!="reunion" & regions!="guadeloupe" & regions != "martinique-guyane"]
+  regions[regions=="paris-et-ile-de-france"] <- "paris"
+  agences <- c()
+  
+  for(r in regions){
+    # liste des villes de la région "r"
+    villes_r <- get_villes(r)
+    villes_r <- lapply(villes_r, FUN = formatage)
+    for(v in villes_r){
+      agences <- c(agences, get_adresses(v, r))
+    }
+    agences <- unique(agences)
+  }
+  return(agences)
+}
+
 # BANQUES - BANQUE POPULAIRE----------------------------------------------------
 
 # Récupération des départements en France métropolitaine ainsi que de leurs numéros
@@ -158,86 +239,6 @@ write.csv(Bnp_paribas_lgt_lat,"Données/Banques/bnp_paribas.csv",row.names = FA
 
 # BANQUES - CREDIT AGRICOLE ----------------------------------------------------
 
-# FONCTIONS UTILES POUR WEBSCRAPING CREDIT AGRICOLE
-
-# Fonction qui permet de supprimer les espaces inutiles
-trim_string <- function(string)   gsub("\\s+", " ", gsub("^\\s+|\\s+$", "", string))
-
-# Fonction qui permet de formater une partie de l'adresse URL pour récupérer les adresses des banques du Crédit Mutuel
-IDville <- function(villes) {
-  villes <- trim_string(villes)
-  Ville <- str_replace_all(villes," ","%20")
-}
-
-# Rajoute un 0 au début du code postal si celui-ci ne contient que 4 chiffres
-formatage_code_postal <- function(code_postal) {
-  if (nchar(code_postal) == 4) {
-    code_postal <- paste0("0", code_postal)
-  }
-  return(code_postal)
-}
-
-# Formater le nom des villes
-formatage <- function(str){
-  str <- tolower(str)
-  str <- gsub(" ", "-", str)
-  str <- gsub("'", "-", str)
-  str <- stri_trans_general(str, "Latin-ASCII")
-  return(str)
-}
-
-# Retourne les villes (dans laquelle se situent des  <- ) d'une région donnée
-get_villes <- function(region) {
-  lien_region <- paste0("https://www.credit-agricole.fr/particulier/agence/",region,".html") 
-  page_region <- read_html(lien_region)
-  villes_region <- page_region %>% html_nodes(".js-alphabetList-item") %>% html_text()
-  return(unique(villes_region))
-}
-
-# Retourne le code postal d'une ville
-get_code_postal <- function(ville) {
-  ville <- toupper(gsub("-", " ", ville))
-  code_postal <- codes_postaux[codes_postaux$Nom_commune == ville,]$Code_postal
-  return(code_postal)
-}
-
-# Retourne les adresses des agences se situant au sein d'une ville donnée et d'une région donnée
-get_adresses <- function(ville, region) {
-  code_postal <- get_code_postal(ville)
-  adresses <- c()
-  for (code in code_postal) {
-    lien_ville <- paste0("https://www.credit-agricole.fr/particulier/agence/", region, "/ville/", ville,"-", code, ".html")
-    page_ville <- read_html(lien_ville)
-    adresse <- page_ville %>% html_nodes(".StoreLocatorMap-AgencyAddress") %>% html_text()
-    adresses <- c(adresses, adresse)
-  }
-  return(unique(adresses))
-}
-
-# Retourne l'ensemble des adresses des agences
-get_all_adresses <- function() {
-  lien <- "https://www.credit-agricole.fr/particulier/agence.html"
-  page <- read_html(lien)
-  
-  # liste des régions
-  regions <- page %>% html_nodes(".indexCR-itemLink") %>% html_text()
-  regions <- lapply(regions, FUN = formatage)
-  regions <- regions[regions!="reunion" & regions!="guadeloupe" & regions != "martinique-guyane"]
-  regions[regions=="paris-et-ile-de-france"] <- "paris"
-  agences <- c()
-  
-  for(r in regions){
-    # liste des villes de la région "r"
-    villes_r <- get_villes(r)
-    villes_r <- lapply(villes_r, FUN = formatage)
-    for(v in villes_r){
-      agences <- c(agences, get_adresses(v, r))
-    }
-    agences <- unique(agences)
-  }
-  return(agences)
-}
-
 # Avoir le nom d'une ville et la région dans laquelle elle se situe ne suffit pas pour accéder 
 # aux agences au sein de cette ville : le code postal de la ville est également compris dans l'URL
 # ex : https://www.credit-agricole.fr/particulier/agence/alpes-provence/ville/aix-en-provence-13090.html
@@ -260,6 +261,8 @@ agences[which(agences=="Immeuble l'Eperon B 1  38860 LES DEUX ALPES")] <- "70 AV
 agences[which(agences=="Centre Commercial Station des Orres  05200 Les Orres")] <- "11 Pl. des Étoiles, 05200 Les Orres"
 agences[which(agences=="IMMEUBLE LE ROND POINT  06340 LA TRINITE")] <- "Bd François Suarez, 06340 La Trinité"
 agences[which(agences=="2 PLACE DU MARÉCHAL LECLERC  88510 ELOYES")] <- "2 Rue du Perreuil 88510 Éloyes"
+agences[which(agences=="Parc Tertiaire de Valgora - Bat J  83160 LA VALETTE DU VAR")] <- "Agence Entreprise TOULONNAISE PARC TERTIAIRE DE VALGORA, 83160 La Valette-du-Var"
+agences[which(agences=="Centre commercial la Petite Arche  37100 TOURS")] <- "Av. Gustave Eiffel, 37100 Tours"
 agences <- unique(agences)
 
 # Récupération des longitudes et latitudes de chaque adresse
@@ -271,17 +274,21 @@ for(i in 1:length(agences)){
   coordonnees <- geocode(adr)
   longitude<-c(longitude,coordonnees$longitude[1])
   latitude<-c(latitude,coordonnees$latitude[1])
-  print(i)
 }
 
-credit_agricole <- data.frame(agences, longitudes_latitudes)
+credit_agricole <- data.frame(agences, longitude,latitude)
 credit_agricole <- cbind(data.frame(banque="Crédit Agricole", type="Coopérative"), credit_agricole)
 colnames(credit_agricole) <- c('Banque','Type','Adresse','Longitude','Latitude')
 credit_agricole$Adresse <- toupper(credit_agricole$Adresse)
 
-#cred_agri <- data.frame(Banque="Crédit Agricole",Type="Coopérative",Adresse=toupper(agences))
+# On retire les doublons d'adresse
+coord <- data.frame(longitude,latitude)
 
-write.csv(credit_agricole, "Données/Banques/credit_agricole.csv", row.names=FALSE)
+indice_sans_doublon <- as.integer(row.names(unique(coord)))
+
+credit_agricole_sans_doublon <- credit_agricole[indice_sans_doublon,]
+
+write.csv(credit_agricole_sans_doublon, "Données/Banques/credit_agricole.csv", row.names=FALSE)
 
 # BANQUES - CREDIT MUTUEL-------------------------------------------------------
 
@@ -369,47 +376,6 @@ credit_mutuel_lng_lat<-data.frame(Banque=Credit_mutuel_sans_doublon$Banque,
                                   Adresse=Credit_mutuel_sans_doublon$Adresse,
                                   Longitude=longitude[indice_sans_doublon],
                                   Latitude=latitude[indice_sans_doublon])
-
-# CREDIT MUTUEL BRETAGNE
-
-link <- "https://www.cmb.fr/reseau-bancaire-cooperatif/web/recherche-agence-credit-mutuel-de-bretagne"
-page <- read_html(link)
-departement <- page %>% html_nodes(".cta_list_item") %>% html_text()
-
-departement <- trim_string(departement)
-departement <- substr(departement,1,nchar(departement)-5)
-departement <- stri_trans_general(departement, "Latin-ASCII")
-departement <- tolower(departement)
-departement <- str_replace_all(departement,"'"," ")
-departement <- str_replace_all(departement," ","-")
-
-
-adresses <- c()
-
-for(i in departement){
-  link_part <- paste0(link,"/",i)  
-  page <- read_html(link_part)
-  Villes_code <- page %>% html_nodes("a div") %>% html_text()
-  Villes_code <- Villes_code[-c(1,2,3,4)]
-  Villes_code <- trim_string(Villes_code)
-  adresses <- c(adresses,Villes_code)
-}
-
-adresses <- str_replace_all(adresses," -","")
-
-longitude <-c()
-latitude<-c()
-
-for(i in 1:length(adresses)){
-  adr<-adresses[i]
-  coordonnees <- geocode(adr)
-  longitude<-c(longitude,coordonnees$longitude[1])
-  latitude<-c(latitude,coordonnees$latitude[1])
-  
-}
-
-Credit_mutuel_bretagne <- data.frame(Banque="Crédit Mutuel",Type="Coopérative", Adresse=adresses,Longitude=longitude,Latitude=latitude)
-credit_mutuel_lng_lat <- rbind(Credit_mutuel_bretagne,credit_mutuel_lng_lat)
 
 write.csv(credit_mutuel_lng_lat,"Données/Banques/credit_mutuel.csv",row.names = FALSE)
 
