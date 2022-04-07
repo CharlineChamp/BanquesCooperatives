@@ -319,12 +319,10 @@ for (i in 1:length(departement)){
     link <- paste0("https://www.creditmutuel.fr/fr/banques/contact/trouver-une-agence/SearchList.aspx?sub=true&type=branch&loca=",villesID[j])
     page <- read_html(link)
     adresses <- page %>% html_nodes("em span") %>% html_text()
-    
     if(length(adresses>0)){
       indice_rue<- seq(3,length(adresses),5)
       indice_code<- seq(4,length(adresses),5)
       indice_ville<- seq(5,length(adresses),5)
-      
       Rue <- c(Rue,adresses[indice_rue])
       Code_postal <- c(Code_postal,adresses[indice_code])
       Ville <- c(Ville,adresses[indice_ville])
@@ -336,7 +334,6 @@ for (i in 1:length(departement)){
 Crédit_mutuel <- data.frame(Rue,Code_postal,Ville)
 sans_doublons<-unique(Crédit_mutuel[,c(1,3)])
 indice_sans_doublon<-as.integer(row.names(sans_doublons))
-
 
 # Ecriture des adresses dans un data frame
 Credit_mutuel_sans_doublon<-data.frame(Banque=rep("Crédit Mutuel",length(indice_sans_doublon)),
@@ -350,7 +347,6 @@ Credit_mutuel_sans_doublon<-data.frame(Banque=rep("Crédit Mutuel",length(indice
 
 # Correction d'une adresse ne donnant pas de résultat pour obtenir les longitudes et latitudes
 Credit_mutuel_sans_doublon$Adresse[which(Credit_mutuel_sans_doublon$Adresse=="5 PLACE J DE LATTRE DE TASSIGNY ,  68025 ,  COLMAR")]<-"9 Pl. Jean de Lattre de Tassigny, 68000 Colmar"
-
 
 # Récupération des longitudes et latitudes pour chaque adresse
 longitude <-c()
@@ -377,7 +373,68 @@ credit_mutuel_lng_lat<-data.frame(Banque=Credit_mutuel_sans_doublon$Banque,
                                   Longitude=longitude[indice_sans_doublon],
                                   Latitude=latitude[indice_sans_doublon])
 
-write.csv(credit_mutuel_lng_lat,"Données/Banques/credit_mutuel.csv",row.names = FALSE)
+# CREDIT MUTUEL BRETAGNE 
+link <- "https://www.cmb.fr/reseau-bancaire-cooperatif/web/recherche-agence-credit-mutuel-de-bretagne"
+page <- read_html(link)
+departement <- page %>% html_nodes(".cta_list_item") %>% html_text()
+departement <- trim_string(departement)
+departement <- substr(departement,1,nchar(departement)-5)
+departement <- stri_trans_general(departement, "Latin-ASCII")
+departement <- tolower(departement)
+departement <- str_replace_all(departement,"'"," ")
+departement <- str_replace_all(departement," ","-")
+
+adresses <- c()
+for(i in departement){
+  link_part <- paste0(link,"/",i)  
+  page <- read_html(link_part)
+  Villes_code <- page %>% html_nodes("a div") %>% html_text()
+  Villes_code <- Villes_code[-c(1,2,3,4)]
+  Villes_code <- trim_string(Villes_code)
+  adresses <- c(adresses,Villes_code)
+}
+
+# Suppression des adresses doublons
+Crédit_mutuel_bretagne <- data.frame(adresses)
+
+# Ecriture des adresses dans un data frame
+Crédit_mutuel_bretagne<-data.frame(Banque=rep("Crédit Mutuel",length(adresses)),
+                                       Type=rep("Coopérative",length(adresses)),
+                                       Adresse=toupper(adresses))
+
+
+# Correction d'une adresse ne donnant pas de résultat pour obtenir les longitudes et latitudes
+# Crédit_mutuel_bretagne_sans_doublon$Adresse[which(Crédit_mutuel_bretagne_sans_doublon$Adresse=="5 PLACE J DE LATTRE DE TASSIGNY ,  68025 ,  COLMAR")]<-"9 Pl. Jean de Lattre de Tassigny, 68000 Colmar"
+
+# Récupération des longitudes et latitudes pour chaque adresse
+longitude <-c()
+latitude<-c()
+
+for(i in 1:length(Crédit_mutuel_bretagne_sans_doublon$Adresse)){
+  adr<-Crédit_mutuel_bretagne_sans_doublon$Adresse[i]
+  coordonnees <- geocode(adr)
+  longitude<-c(longitude,coordonnees$longitude[1])
+  latitude<-c(latitude,coordonnees$latitude[1])
+  print(i)
+}
+
+# On retire les doublons d'adresse
+coord <- data.frame(longitude,latitude)
+
+indice_sans_doublon <- as.integer(row.names(unique(coord)))
+
+Credit_mutuel_bretagne_sans_doublon <- Crédit_mutuel_bretagne_sans_doublon[indice_sans_doublon,]
+
+# Ecriture des longitudes, latitudes et adresses de chaque banque du Crédit Mutuel dans un data frame
+Crédit_mutuel_bretagne_lng_lat<-data.frame(Banque=Credit_mutuel_sans_doublon$Banque,
+                                  Type=Credit_mutuel_sans_doublon$Type,
+                                  Adresse=Credit_mutuel_sans_doublon$Adresse,
+                                  Longitude=longitude[indice_sans_doublon],
+                                  Latitude=latitude[indice_sans_doublon])
+
+# Concaténation du crédit mutuel et du crédit mutuel Bretagne
+credit_mutuel <- c(credit_mutuel_lng_lat,Crédit_mutuel_bretagne_lng_lat)
+write.csv(credit_mutuel,"Données/Banques/credit_mutuel.csv",row.names = FALSE)
 
 # BANQUES - SOCIETE GENERALE ---------------------------------------------------
 
