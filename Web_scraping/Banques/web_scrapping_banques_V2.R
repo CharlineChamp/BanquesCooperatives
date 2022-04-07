@@ -386,12 +386,33 @@ departement <- str_replace_all(departement," ","-")
 
 adresses <- c()
 for(i in departement){
-  link_part <- paste0(link,"/",i)  
-  page <- read_html(link_part)
+  link_dep <- paste0(link,"/",i)  
+  page <- read_html(link_dep)
   Villes_code <- page %>% html_nodes("a div") %>% html_text()
   Villes_code <- Villes_code[-c(1,2,3,4)]
   Villes_code <- trim_string(Villes_code)
-  adresses <- c(adresses,Villes_code)
+  Villes_code <- substr(Villes_code,1,nchar(Villes_code)-8)
+  liste <- str_count(Villes_code,"-")
+  Villes_code <- str_replace_all(Villes_code," ","-")
+  Villes_code  <- tolower(Villes_code)
+  k <- 1
+  for (j in Villes_code){
+    if(liste[k]==0){
+      link_ville <- paste0(link_dep,"/",j)
+      page <- read_html(link_dep)
+      adr <- page %>% html_nodes("#ficheAgence .content p+ p") %>% html_text()
+      adresses <- c(adresses,adr)
+    }else{
+      if(j == "dinan---221"){j <-"dinan"}
+      if(j == "rennes---35000-35065-352"){j <-"rennes"}
+      if(j == "lanester---566"){j <-"lanester"}
+      link_ville <- paste0(link_dep,"/",j)
+      page <- read_html(link_dep)
+      adr <- page %>% html_nodes(".mt_md_2 p") %>% html_text()
+      adresses <- c(adresses,adr)
+    }
+    k <- k + 1
+  }
 }
 
 # Suppression des adresses doublons
