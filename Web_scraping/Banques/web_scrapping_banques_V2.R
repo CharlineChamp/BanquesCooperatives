@@ -149,13 +149,13 @@ indice_sans_doublon <- as.integer(row.names(unique(coord)))
 banque_populaire <- banque_populaire[indice_sans_doublon,]
 
 # Ecriture des longitudes, latitudes et adresses de chaque agence de la Banque Populaire dans un data frame
-Banque_populaire_lgt_lat <- data.frame(Banque=banque_populaire$Banque,
+banque_populaire <- data.frame(Banque=banque_populaire$Banque,
                                        Type=banque_populaire$Type,
                                        Adresse=banque_populaire$Adresse,
                                        Longitude=longitude[indice_sans_doublon],
                                        Latitude=latitude[indice_sans_doublon])
 
-write.csv(Banque_populaire_lgt_lat,"Données/Banques/banque_populaire.csv",row.names = FALSE)
+write.csv(banque_populaire,"Données/Banques/banque_populaire.csv",row.names = FALSE)
 
 
 # BANQUES - BNP PARIBAS --------------------------------------------------------
@@ -229,13 +229,13 @@ indice_sans_doublon <- as.integer(row.names(unique(coord)))
 bnp_paribas <- bnp_paribas[indice_sans_doublon,]
 
 # Ecriture des longitudes, latitudes et adresses de chaque agence Bnp Paribas dans un data frame
-Bnp_paribas_lgt_lat <- data.frame(Banque=bnp_paribas$Banque,
+bnp_paribas <- data.frame(Banque=bnp_paribas$Banque,
                                   Type=bnp_paribas$Type,
                                   Adresse=bnp_paribas$Adresse,
                                   Longitude=longitude[indice_sans_doublon],
                                   Latitude=latitude[indice_sans_doublon])
 
-write.csv(Bnp_paribas_lgt_lat,"Données/Banques/bnp_paribas.csv",row.names = FALSE)
+write.csv(bnp_paribas,"Données/Banques/bnp_paribas.csv",row.names = FALSE)
 
 # BANQUES - CREDIT AGRICOLE ----------------------------------------------------
 
@@ -286,9 +286,9 @@ coord <- data.frame(longitude,latitude)
 
 indice_sans_doublon <- as.integer(row.names(unique(coord)))
 
-credit_agricole_sans_doublon <- credit_agricole[indice_sans_doublon,]
+credit_agricole <- credit_agricole[indice_sans_doublon,]
 
-write.csv(credit_agricole_sans_doublon, "Données/Banques/credit_agricole.csv", row.names=FALSE)
+write.csv(credit_agricole, "Données/Banques/credit_agricole.csv", row.names=FALSE)
 
 # BANQUES - CREDIT MUTUEL-------------------------------------------------------
 
@@ -510,23 +510,23 @@ societe_generale <- societe_generale[indice_sans_doublon,]
 
 
 # Ecriture des longitudes, latitudes et adresses de chaque agence de la Société Générale dans un data frame
-societe_generale_lgt_lat <- data.frame(Banque=societe_generale$Banque,
+societe_generale <- data.frame(Banque=societe_generale$Banque,
                                        Type=societe_generale$Type,
                                        Adresse=societe_generale$Adresse,
                                        Longitude=longitude[indice_sans_doublon],
                                        Latitude=latitude[indice_sans_doublon])
 
-write.csv(societe_generale_lgt_lat,"Données/Banques/societe_generale.csv",row.names = FALSE)
+write.csv(societe_generale,"Données/Banques/societe_generale.csv",row.names = FALSE)
 
 # CONCATENATION BANQUES  ------------------------------------------------------
 
 # Création d'un data frame regroupant les adresses, longitudes et latitudes de 
 # toutes les banques ci-dessus
-data_banque <- rbind(Banque_populaire_lgt_lat,
-                     Bnp_paribas_lgt_lat,
+data_banque <- rbind(banque_populaire,
+                     bnp_paribas,
                      credit_agricole,
-                     credit_mutuel_lng_lat,
-                     societe_generale_lgt_lat)
+                     credit_mutuel,
+                     societe_generale)
 
 # Ecriture de la data frame contenant toutes les banques dans un csv
 write.csv(data_banque,"Données/bdd_coordonnees_banques2022.csv",row.names = FALSE)
