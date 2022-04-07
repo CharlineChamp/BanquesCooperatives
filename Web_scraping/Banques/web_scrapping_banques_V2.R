@@ -431,12 +431,11 @@ Crédit_mutuel_bretagne<-data.frame(Banque=rep("Crédit Mutuel",length(adresses)
 longitude <-c()
 latitude<-c()
 
-for(i in 1:length(Crédit_mutuel_bretagne_sans_doublon$Adresse)){
-  adr<-Crédit_mutuel_bretagne_sans_doublon$Adresse[i]
+for(i in 1:length(Crédit_mutuel_bretagne$Adresse)){
+  adr<-Crédit_mutuel_bretagne$Adresse[i]
   coordonnees <- geocode(adr)
   longitude<-c(longitude,coordonnees$longitude[1])
   latitude<-c(latitude,coordonnees$latitude[1])
-  print(i)
 }
 
 # On retire les doublons d'adresse
@@ -444,12 +443,12 @@ coord <- data.frame(longitude,latitude)
 
 indice_sans_doublon <- as.integer(row.names(unique(coord)))
 
-Credit_mutuel_bretagne_sans_doublon <- Crédit_mutuel_bretagne_sans_doublon[indice_sans_doublon,]
+Credit_mutuel_bretagne<- Crédit_mutuel_bretagne[indice_sans_doublon,]
 
 # Ecriture des longitudes, latitudes et adresses de chaque banque du Crédit Mutuel dans un data frame
-Crédit_mutuel_bretagne_lng_lat<-data.frame(Banque=Credit_mutuel_sans_doublon$Banque,
-                                  Type=Credit_mutuel_sans_doublon$Type,
-                                  Adresse=Credit_mutuel_sans_doublon$Adresse,
+Crédit_mutuel_bretagne_lng_lat<-data.frame(Banque=Credit_mutuel_bretagne$Banque,
+                                  Type=Credit_mutuel_bretagne$Type,
+                                  Adresse=Credit_mutuel_bretagne$Adresse,
                                   Longitude=longitude[indice_sans_doublon],
                                   Latitude=latitude[indice_sans_doublon])
 
