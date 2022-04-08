@@ -52,4 +52,4 @@ df_bnp <- eff_banq_ze(label_banque = "BNP Paribas")
 
 # Concaténation des data frame
 
-df_eff <- c(df_bp, df_ca, df_cm, df_sg, df_bnp)
+df_eff <- rbind(df_bp, df_ca, df_cm, df_sg, df_bnp)
