@@ -32,6 +32,12 @@ lat <- fd_c[[2]][[1]][[1]][[1]][,2]
 
 ow <- owin(poly = list(x = long,y = lat))
 plot(ow)
-points(dmypattern2)
+points(mypattern2[ow],col='red')
+mypattern2[ow]$n
+
+#union.owin(ow1,ow2,ow3)
+#glm(N~TxPauvrete+……, family=poisson)
+
+
 
 

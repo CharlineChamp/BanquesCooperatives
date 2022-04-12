@@ -11,7 +11,7 @@ mapboxToken <- paste("pk.eyJ1IjoiZ3JhbnQyNDk5IiwiYSI6ImNremZ6enYweDJjbjAybm8xejV
 Sys.setenv("MAPBOX_TOKEN" = mapboxToken)
 
 # Tracé de la France découpée en zone d'emplois
-fig1 <- plot_mapbox(data = ze, split=~Z.202) %>% layout(mapbox = list(style = 'dark'))
+fig1 <- plot_mapbox(data = ze[3,], split=~Z.202) %>% add_markers(data = banque, x=~Longitude, y=~Latitude, split=~Banque) %>% layout(mapbox = list(style = 'dark'))
 fig1
 
 # Positionnement des banques sur la carte
@@ -19,7 +19,7 @@ fig <- plot_mapbox(data = banque,lon=~Longitude,lat=~Latitude,
                    split=~Banque,
                    size=1,
                    mode = 'markers', hoverinfo='text',
-                   marker = list(size = 8, opacity = .5))
+                   marker = list(size = 5, opacity = .5))
 
 fig <- fig %>% layout(title = 'Banques Coopératives',
                       font = list(color='white'),
@@ -34,6 +34,6 @@ fig <- fig %>% config(mapboxAccessToken = Sys.getenv("MAPBOX_TOKEN"))
 
 fig
 
-#subplot(fig,fig1)
+subplot(fig,fig1)
 
 
