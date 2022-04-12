@@ -33,8 +33,20 @@ lat <- fd_c[[2]][[1]][[1]][[1]][,2]
 ow <- owin(poly = list(x = long,y = lat))
 plot(ow)
 points(mypattern2[ow],col='red')
-mypattern2[ow]$n
+mypattern2[ow]$n #pour avoir le nombre de points dans le polygon
 
+plot(mypattern2[ow]$x,mypattern2[ow]$y) #coordonnées des banques dans le polygon 
+
+coord.test <- data.frame(long=mypattern2[ow]$x, lat=mypattern2[ow]$y)
+
+# l.long <- vector(length=0)
+# l.lat <- vector(length=0)
+# for(i in 1:length(banque[,1])){
+#   for(j in 1:length(coord.test[,1])){
+#     l.long <- c(l.long,which(banque$Longitude[i] == coord.test$long[j]))
+#     l.lat <- c(l.lat,which(banque$Longitude[i] == coord.test$long[j])
+#   }
+# }
 #union.owin(ow1,ow2,ow3)
 #glm(N~TxPauvrete+……, family=poisson)
 
