@@ -5,12 +5,12 @@ library(ggplot2)
 library(ggspatial)
 library(viridis)
 
-setwd("~/GitHub/BanquesCooperatives/Carte/V2")
+
 
 #Chargement des données
-fd_c <- st_read('../shapefile/fond_ZE2020_geo20.shp')
-bdd_zese <- readxl::read_xlsx('../../Données/bdd_social_ze2020.xlsx')
-sg <- read.csv("../../Données/bdd_coordonnees_banques2022.csv")
+fd_c <- st_read('Carte/shapefile/fond_ZE2020_geo20.shp')
+bdd_zese <- readxl::read_xlsx('Données/bdd_social_ze2020.xlsx')
+sg <- read.csv("Données/bdd_coordonnees_banques2022.csv")
 
 l <- vector(length = 0)
 #Indices des codes correspondants aux départements d'outre mer
