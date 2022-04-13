@@ -125,13 +125,13 @@ df_socio <- df_socio[-9]
 ###############################################################################
 
 # Récupération de la feuille excel Emploi total
-emploi_total_1998_2018 <- read_excel("~/Downloads/emploi-zone-1998-2018.xlsx", sheet = "Emploi total - ZE", range = "A5:W310")
+emploi_total_1998_2018 <- read_excel("emploi-zone-1998-2018.xlsx", sheet = "Emploi total - ZE", range = "A5:W310")
 
 # Récupération de la feuille excel Emploi non salarié
-emploi_non_salarie_1998_2018 <- read_excel("~/Downloads/emploi-zone-1998-2018.xlsx", sheet = "Emploi non salarié - ZE", range = "A5:W310")
+emploi_non_salarie_1998_2018 <- read_excel("emploi-zone-1998-2018.xlsx", sheet = "Emploi non salarié - ZE", range = "A5:W310")
 
 # Récupération de la feuille excel Emploi salarié
-emploi_salarie_1998_2018 <- read_excel("~/Downloads/emploi-zone-1998-2018.xlsx", sheet = "Emploi salarié - ZE", range = "A4:X1835")
+emploi_salarie_1998_2018 <- read_excel("emploi-zone-1998-2018.xlsx", sheet = "Emploi salarié - ZE", range = "A4:X1835")
 emploi_salarie_1998_2018 <- emploi_salarie_1998_2018[-1831,]
 
 # Modification de la première colonne pour avoir les zones d'emplois à part de leur libellé
