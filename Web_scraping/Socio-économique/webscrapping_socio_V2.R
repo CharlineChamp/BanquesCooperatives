@@ -193,7 +193,7 @@ df_emploi <- cbind(emploi_total_2018, emploi_non_salarie_2018, emploi_salarie_20
 
 # Question: Est-ce que nous prendrions pas le taux de chômage en 2019 pour être cohérent 
 # Récupération de la feuille excel 
-taux_chomage_2003_2020 <- read_excel("~/Downloads/chomage-zone-2003-2020.xlsx", sheet = "txcho_ze", range = "A5:V307")
+taux_chomage_2003_2020 <- read_excel("chomage-zone-2003-2020.xlsx", sheet = "txcho_ze", range = "A5:V307")
 
 # Zone d'emploi des outre-mers
 ze_outre_mer <- c("0104","0102","0105","0101","0103","0203","0206","0204","0202","0205","0201","0301","0303","0302","0404","0401","0402","0403","0601")
