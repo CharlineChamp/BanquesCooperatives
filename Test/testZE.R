@@ -79,6 +79,21 @@ test_bq_ze <- function(df_banque,df1_banque){
   cat('Vrais : ',ind.vrai,'\n','Faux : ',ind.faux)
 }
 
+# Test avec ppp
+data.eff <- data.frame(table(banque$ze))
+ind.vrai <- vector(length = 0)
+ind.faux <- vector(length = 0)
+for(i in 1:length(data.eff$Var1)){
+  longlat <- recup.longlat(i)
+  ow <- owin(poly = list(x = longlat$Longitude,y = longlat$Latitude))
+  if(data.eff$Freq[i] == mypattern[ow]$n){
+    ind.vrai <- c(ind.vrai,i)
+  }
+  else{
+    ind.faux <- c(ind.faux,i)
+  }
+}
+cat('Indices Vrais : ',ind.vrai,'\n','Indices Faux : ',ind.faux)
 
 
 

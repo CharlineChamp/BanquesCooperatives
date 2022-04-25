@@ -50,30 +50,10 @@ gg_map_ze <- function(ze){
 }
 
 
+s <- sample(bdd_zese$`Zone d'emploi 2020`,1)
+ggplotly(gg_map_ze(s))
 
-
-
-# # Test avec ppp
-# data.eff <- data.frame(table(banque$ze))
-# ind.vrai <- vector(length = 0)
-# ind.faux <- vector(length = 0)
-# for(i in 1:length(data.eff$Var1)){
-#   longlat <- recup.longlat(i)
-#   ow <- owin(poly = list(x = longlat$Longitude,y = longlat$Latitude))
-#   if(data.eff$Freq[i] == mypattern[ow]$n){
-#     ind.vrai <- c(ind.vrai,i)
-#   }
-#   else{
-#     ind.faux <- c(ind.faux,i)
-#   }
-# }
-# cat('Indices Vrais : ',ind.vrai,'\n','Indices Faux : ',ind.faux)
-# 
-# s <- sample(bdd_zese$`Zone d'emploi 2020`,1)
-# ggplotly(gg_map_ze(s))
-# 
-# write.csv(banque,'bdd_coordonnees_ze_banques2022.csv',row.names = FALSE)
 #7616 / 8410 /8405
-#Résoudre problème carte (verifier test log==la ??) (1)
+
 
 
