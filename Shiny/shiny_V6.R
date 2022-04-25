@@ -25,7 +25,9 @@ ui <- dashboardPage(
                menuSubItem("Comparaison Banque",tabName = "Comparaison-Banque",icon=icon("bank")),
                menuSubItem("Comparaison Critère Type",tabName = "Comparaison-Critere-Type", icon=icon("not-equal")),
                menuSubItem("Comparaison Critère Banque",tabName = "Comparaison-Critere-Banque",icon=icon("bank"))),
-      menuItem("Carte zone d'emploi",tabName = "Carte_zone",icon=icon("map")),
+      menuItem("Autres choix de carte",tabName = "autres_carte",icon=icon("map"),
+               menuSubItem("Carte d'une zone d'emploi",tabName = "Carte-zone",icon=icon("square")),
+               menuSubItem("Carte dynamique",tabName = "Carte_dyna",icon=icon("map"))),
       menuItem("Données", tabName = "Donnees", icon = icon("database"),
                menuSubItem("Banques",tabName = "Banques",icon=icon("bank")),
                menuSubItem("Critères",tabName = "Criteres",icon=icon("hashtag")),
@@ -34,13 +36,16 @@ ui <- dashboardPage(
   body = dashboardBody(
     shinyDashboardThemes("purple_gradient"),
     tabItems(
-      tabItem(tabName = "Accueil", fluidRow(column(width = 10,offset = 1,  align = "center", tags$div(tags$br(),tags$br(), tags$h1("Analyse du positionnement des banques coopératives suivant des facteurs socio-économiques avec en population témoin les banques lucratives."),tags$br(),tags$br(),tags$br(),tags$br()))),
-              fluidRow(align="center",tags$img(src='populaire.jpg', height = '203', width ='203'),
+      tabItem(tabName = "Accueil", fluidRow(column(width = 8,offset = 2,  align = "center", tags$div(tags$br(), tags$h1("Visualisation du positionnement des banques coopératives suivant des facteurs socio-économiques avec en population témoin les banques lucratives."),tags$br(),tags$br(),tags$br()))),
+              fluidRow(column(width=6,tags$img(src='populaire.jpg', height = '203', width ='203'),
                        tags$img(src='mutuel.jpg', height = '203', width ='203'),
                        tags$img(src='agricole.png', height = '203', width ='203'),br(),br(),br()),
-              fluidRow(align="center",tags$img(src='generale.jpg', height = '203', width ='203'),
+                      column(width = 4, align = "center",tags$div(style= "font-weight: 1000; font-family: DejaVu Sans Mono; monospace",tags$br(),tags$br(),"Cette application a ete realisee dans le cadre d'un projet tutore du master SSD sous l'encadrement de M.Coeurjolly et Amelie Artis.",tags$br(),"Realise par : ",tags$br(), "Batiste Amistadi, Charline Champ, Antoine Grancher, Cheikh Darou beye et Alicia Lorandi"))),
+              fluidRow(column(width=5,tags$img(src='generale.jpg', height = '203', width ='203'),
                        tags$img(src='bnp.jpg', height = '203', width ='203')),
-              fluidRow(column(width = 2,offset = 10,  align = "center",tags$div(style= "font-weight: 1000; font-family: DejaVu Sans Mono; monospace",tags$br(),tags$br(),tags$br(),"Realise par:", tags$br(), "Batiste Amistadi, Charline Champ, Antoine Grancher, Cheikh Darou beye et Alicia Lorandi")))),
+                       column(width = 4,offset = 2,tags$img(src='logoblanc.png',width='296',height='181')))
+              
+        ),
       tabItem("Comparaison Banque-Type"),
       tabItem("Map",
               fluidRow(column(width=4,selectInput("choice",label="Choix de la représentation : ",choices=c("Type","Banque"))),
@@ -74,7 +79,14 @@ ui <- dashboardPage(
               actionButton("afficher","Afficher"),
               fluidRow(column(width = 12,div(style= "font-weight: 1000; font-family: Arial; monospace","Carte des premières banques",tags$br()),plotlyOutput("carte_critere_banque_1", width = "auto",height = "600px"),align="center"),
                        column(width = 12,div(style= "font-weight: 1000; font-family: Arial; monospace","Carte des deuxièmes banques",tags$br()),plotlyOutput("carte_critere_banque_2", width = "auto",height = "600px"),align="center"))),
-      tabItem("Carte_zone"),
+      tabItem("Carte-zone",
+              fluidRow(column(width = 6,selectInput("zone_carte",label="Choix de la zone d'emploi : ",choices = paste0(bdd_zese$`Zone d'emploi 2020`," - ",bdd_zese$Libellé))),
+                       column(width = 6,checkboxInput("colo_type", "Coloration par Type", FALSE))),
+              fluidRow(column(width = 12,align="center",tags$h3("Carte d'une zone d'emploi"))),
+              plotlyOutput("carte_zone",width = "auto",height = "600px")),
+      tabItem("Carte_dyna",
+              fluidRow(column(width=12,align="center",tags$h3("Carte dynamiques des données coloriées par banque"))),
+              plotlyOutput("carte_dyn",width = "auto",height = "600px")),
       tabItem("Donnees"),
       tabItem("Banques",
               fluidRow(
@@ -204,6 +216,17 @@ server <- function(input,output){
     gg_map(bdd_zese,input$critere_2,0,data)
   })
   
+  output$carte_zone <- renderPlotly({
+    
+    temp <- unlist(strsplit(input$zone_carte,"-"))[1]
+    temp <- substr(temp,1,nchar(temp)-1)
+    gg_map_ze(bdd_zese,bdd_coordonnees_ze_banques2022,input$colo_type,temp)
+  })
+  
+  
+  output$carte_dyn <- renderPlotly({
+    plotly_map(bdd_coordonnees_banques2022)
+  })
   
   output$table1 <- DT::renderDataTable(DT::datatable({
     data <- bdd_coordonnees_banques2022
