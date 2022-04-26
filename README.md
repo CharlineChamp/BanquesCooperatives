@@ -13,7 +13,7 @@ Plusieurs packages ont été utilisés pour mener a bien ce projet. Nous recenso
 ```shiny```,```shinythemes```,```shinydashboard```,```dashboardthemes```,```shinydashboardPlus```.
 
 Et d'autres pour la visualisation et manipulation de données : 
-```plotly```,```ggplot2```,``dplyr```,```sf```,```spatstat``` et ```BP2CAMSG```.
+```plotly```,```ggplot2```,```dplyr```,```sf```,```spatstat``` et ```BP2CAMSG```.
 
 Vérifiez bien que vous les ayez tous pour pouvoir lancer le fichier [```shiny_V6.R```](https://github.com/CharlineChamp/BanquesCooperatives/blob/main/Shiny/shiny_V6.R).
 
