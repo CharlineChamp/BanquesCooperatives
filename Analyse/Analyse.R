@@ -32,34 +32,4 @@ banque.ze <- mypattern[ow]
 plot(density(banque.ze))
 points(banque.ze,cex=.4)
 
-N <- mypattern[ow]$n
-
-banq.dens <- function(ze,type){
-  ind.ze <- which(bdd_zese$`Zone d'emploi 2020`==ze)
-  coord.ze <- recup.longlat(ind.ze)
-  ow <- owin(poly = list(x = coord.ze$Longitude,y = coord.ze$Latitude))
-  if(type == 'Lucrative'){
-    ind.lucr <- which(bdd_coordonnees_banques2022$Type=='Lucrative')
-    banq <- bdd_coordonnees_banques2022[ind.lucr,]
-    long <- banq$Longitude
-    lat <- banq$Latitude
-    mypattern <- ppp(long, lat,c(min(long),max(long)), c(min(lat),max(lat)))
-    }
-  if(type=='Coopérative'){
-    ind.coop <- which(bdd_coordonnees_banques2022$Type=='Coopérative')
-    banq <- bdd_coordonnees_banques2022[ind.coop,]
-    long <- banq$Longitude
-    lat <- banq$Latitude
-    mypattern <- ppp(long, lat,c(min(long),max(long)), c(min(lat),max(lat)))
-      }
-  if(type='Tout'){
-    banq <- bdd_coordonnees_banques2022
-    long <- banq$Longitude
-    lat <- banq$Latitude
-    mypattern <- ppp(long, lat,c(min(long),max(long)), c(min(lat),max(lat)))
-    }
-  banque.ze <- mypattern[ow]
-  plot(density(banque.ze),main='Densité')
-  points(banque.ze,cex=.4)
-}
 
