@@ -25,7 +25,6 @@ ui <- dashboardPage(
                      menuSubItem("Comparaison Banque",tabName = "Comparaison-Banque",icon=icon("bank")),
                      menuSubItem("Comparaison Critere Type",tabName = "Comparaison-Critere-Type", icon=icon("not-equal")),
                      menuSubItem("Comparaison Critere Banque",tabName = "Comparaison-Critere-Banque",icon=icon("bank"))),
-            menuItem("Carte zone d'emploi",tabName = "Carte_zone",icon=icon("map")),
             menuItem("Donnees", tabName = "Donnees", icon = icon("database"),
                      menuSubItem("Banques",tabName = "Banques",icon=icon("bank")),
                      menuSubItem("Criteres",tabName = "Criteres",icon=icon("hashtag")),
@@ -74,7 +73,6 @@ ui <- dashboardPage(
                     actionButton("afficher","Afficher"),
                     fluidRow(column(width = 12,div(style= "font-weight: 1000; font-family: Arial; monospace","Carte des premieres banques",tags$br()),plotlyOutput("carte_critere_banque_1", width = "auto",height = "600px"),align="center"),
                              column(width = 12,div(style= "font-weight: 1000; font-family: Arial; monospace","Carte des deuxiemes banques",tags$br()),plotlyOutput("carte_critere_banque_2", width = "auto",height = "600px"),align="center"))),
-            tabItem("Carte_zone"),
             tabItem("Donnees"),
             tabItem("Banques",
                     fluidRow(

@@ -15,10 +15,7 @@ library(plotly)
 
 carte_plot <- function(crit,label,point,data){
     
-    #crit colonne du critere si 0 pas de fill
-    #label nom de la colonne
-    #point trinaire si 0 group banque si 1 group type sinon points blancs
-    #data jeu de données des banques
+
     
     map <- ggplot(NULL)
     #choix de la coloration des zones d'emploi
