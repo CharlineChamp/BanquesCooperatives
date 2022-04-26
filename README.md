@@ -1,5 +1,5 @@
 # BanquesCooperatives
-<justify>
+
 Ce projet porte sur la visualisation de données spatiales pour tenter d’expliquer la position géographique des banques en France métropolitaine. Le but étant de proposer une application de visualisation de données qui nous permettra de mettre en relation la position géographique des banques en fonction de données socio-économiques à l’échelle des zones d’emploi. 
 
 ## Informations Générales 
@@ -23,5 +23,5 @@ Pour ce faire, vous pouvez procéder comme suit:
 remotes::install_github('CharlineChamp/BP2CAMSG') 
 ```
 ## Auteurs
-<justify/>
-[Batiste Amistadi](https://github.com/devilbaba), [Charline Champ](https://github.com/CharlineChamp), [Antoine Grancher](https://github.com/Antoine7526), 
+
+[Batiste Amistadi](https://github.com/devilbaba), [Charline Champ](https://github.com/CharlineChamp), [Antoine Grancher](https://github.com/Antoine7526) 
