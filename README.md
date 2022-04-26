@@ -24,4 +24,4 @@ remotes::install_github('CharlineChamp/BP2CAMSG')
 ```
 ## Auteurs
 
-[Batiste Amistadi](https://github.com/devilbaba), [Charline Champ](https://github.com/CharlineChamp), [Antoine Grancher](https://github.com/Antoine7526) 
+[Bastiste Amistadi](https://github.com/devilbaba), [Cheikh Beye](https://github.com/cheikhbeye), [Charline Champ](https://github.com/CharlineChamp), [Antoine Grancher](https://github.com/Antoine7526) et [Alicia Lorandi](https://github.com/alicialorandi)
