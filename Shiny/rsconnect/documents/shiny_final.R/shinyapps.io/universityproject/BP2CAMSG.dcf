@@ -1,0 +1,14 @@
+name: BP2CAMSG
+title: BP2CAMSG
+username:
+account: universityproject
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 6190936
+bundleId: 5846273
+url: https://universityproject.shinyapps.io/BP2CAMSG/
+when: 1651136388.67219
+lastSyncTime: 1651136388.67221
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: shiny_V1.R|shiny_V2.R|shiny_V3.R|shiny_V4.R|shiny_V5.R|shiny_V6.R
