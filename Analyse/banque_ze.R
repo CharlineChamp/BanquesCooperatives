@@ -12,7 +12,7 @@ mypattern <- ppp(long, lat,c(min(long),max(long)), c(min(lat),max(lat)))
 
 # Initialisation d'une colonne vide
 banque$ze <- c(rep(NA,length(banque[,1]))) 
-banque <- banque[,-6]
+
 # Parcours des zones d'emplois
 for (i in bdd_zese$`Zone d'emploi 2020`){
   # Récupération de l'indice associé à la zone d'emploi
